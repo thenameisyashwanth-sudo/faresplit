@@ -1,0 +1,300 @@
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  Bell,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  ReceiptIndianRupee,
+  Settings,
+  Users,
+  Wallet,
+} from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { useAuth } from '@/context/auth-context'
+
+const navItems = [
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/trips', label: 'Trips', icon: Users },
+  { to: '/reports', label: 'Reports', icon: ReceiptIndianRupee },
+  { to: '/requests', label: 'Requests', icon: Wallet },
+]
+
+function NavItem({ to, label, icon: Icon, end }) {
+  return (
+    <NavLink
+      end={end}
+      to={to}
+      className={({ isActive }) =>
+        [
+          'group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition',
+          isActive
+            ? 'bg-white/15 text-white'
+            : 'text-white/60 hover:bg-white/10 hover:text-white',
+        ].join(' ')
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <Icon
+            className={[
+              'h-5 w-5 transition',
+              isActive ? 'text-indigo-300' : 'text-white/60',
+            ].join(' ')}
+          />
+          <span className="flex-1">{label}</span>
+          {isActive ? (
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-400" />
+          ) : null}
+        </>
+      )}
+    </NavLink>
+  )
+}
+
+function SidebarContent({ onNavigate, initials, name, email, onLogout }) {
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex h-20 items-center gap-3 px-6">
+        <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 shadow-lg">
+          <Wallet className="h-6 w-6 text-white" />
+        </div>
+        <div className="text-xl font-bold tracking-tight text-white">
+          FareSplit
+        </div>
+      </div>
+
+      <nav className="space-y-1 px-3">
+        {navItems.map((item) => (
+          <div key={item.to} onClick={onNavigate ? () => onNavigate() : undefined}>
+            <NavItem {...item} />
+          </div>
+        ))}
+      </nav>
+
+      <div className="mt-auto px-4 pb-6">
+        <button
+          onClick={onLogout}
+          className="flex w-full items-center gap-3 rounded-xl bg-white/5 p-4 text-left transition hover:bg-white/10"
+        >
+          <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 text-white">
+            {initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold text-white">{name}</div>
+            <div className="truncate text-xs text-white/50">{email}</div>
+          </div>
+          <LogOut className="h-4 w-4 text-white/40" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-gray-100 bg-white/60 py-6 backdrop-blur-sm">
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-sm text-gray-500">
+          © 2026 FareSplit. Built and owned by Yashwanth S.
+        </div>
+        <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+          <a className="text-gray-500 hover:text-gray-900" href="#">
+            About
+          </a>
+          <a className="text-gray-500 hover:text-gray-900" href="#">
+            Privacy Policy
+          </a>
+          <a className="text-gray-500 hover:text-gray-900" href="#">
+            Contact
+          </a>
+          <a className="text-gray-500 hover:text-gray-900" href="#">
+            GitHub
+          </a>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+function NotificationsPopover() {
+  const unread = 3
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="icon" className="relative rounded-xl">
+          <Bell className="h-4 w-4" />
+          {unread ? (
+            <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-semibold text-white">
+              {unread}
+            </span>
+          ) : null}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-0" align="end">
+        <div className="border-b border-gray-100 px-4 py-3">
+          <div className="text-sm font-semibold">Notifications</div>
+          <div className="text-xs text-gray-500">Recent updates</div>
+        </div>
+        <div className="max-h-80 overflow-auto p-2">
+          {[
+            { title: 'New trip invitation', detail: 'Pondicherry Trip' },
+            { title: 'Expense added', detail: 'Lunch ₹850' },
+            { title: 'Pending payment', detail: 'You owe Rahul ₹142' },
+          ].map((n) => (
+            <button
+              key={n.title}
+              className="w-full rounded-xl p-3 text-left transition hover:bg-gray-50"
+            >
+              <div className="text-sm font-medium">{n.title}</div>
+              <div className="text-xs text-gray-500">{n.detail}</div>
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function Header({ onOpenMobileSidebar, name, initials, onLogout }) {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const title = useMemo(() => {
+    if (location.pathname.startsWith('/trips')) return 'Trips'
+    if (location.pathname.startsWith('/reports')) return 'Reports'
+    if (location.pathname.startsWith('/requests')) return 'Requests'
+    if (location.pathname.startsWith('/settings')) return 'Settings'
+    return 'Dashboard'
+  }, [location.pathname])
+
+  return (
+    <header className="sticky top-0 z-30 h-20 border-b border-gray-100 bg-white/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            className="rounded-xl lg:hidden"
+            onClick={onOpenMobileSidebar}
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
+          <div>
+            <div className="text-xl font-bold tracking-tight">{title}</div>
+            <div className="text-sm text-gray-500">Welcome back, {name}</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <NotificationsPopover />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 text-sm font-semibold text-white shadow-sm">
+                {initials}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/settings')}>
+                <Settings className="mr-2 h-4 w-4" /> My Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/settings')}>
+                <Settings className="mr-2 h-4 w-4" /> Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onLogout}>
+                <LogOut className="mr-2 h-4 w-4" /> Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </header>
+  )
+}
+
+export function AppLayout() {
+  const { user, profile, logout } = useAuth()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const name = (profile?.fullName || user?.displayName || 'there').trim()
+  const email = (user?.email || profile?.email || '').trim()
+  const initials = (name[0] || 'U').toUpperCase()
+
+  return (
+    <div className="min-h-screen bg-gray-50/50">
+      <aside className="fixed inset-y-0 left-0 hidden w-72 bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-900 lg:block">
+        <SidebarContent
+          initials={initials}
+          name={name}
+          email={email}
+          onLogout={logout}
+        />
+      </aside>
+
+      <AnimatePresence>
+        {mobileOpen ? (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: -320 }}
+              animate={{ x: 0 }}
+              exit={{ x: -320 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-900 lg:hidden"
+            >
+              <SidebarContent
+                onNavigate={() => setMobileOpen(false)}
+                initials={initials}
+                name={name}
+                email={email}
+                onLogout={logout}
+              />
+            </motion.aside>
+          </>
+        ) : null}
+      </AnimatePresence>
+
+      <div className="flex min-h-screen flex-col lg:ml-72">
+        <Header
+          onOpenMobileSidebar={() => setMobileOpen(true)}
+          name={name}
+          initials={initials}
+          onLogout={logout}
+        />
+        <main className="flex-1">
+          <div className="mx-auto max-w-7xl px-6 py-6">
+            <Outlet />
+          </div>
+        </main>
+        <Footer />
+      </div>
+    </div>
+  )
+}
+
