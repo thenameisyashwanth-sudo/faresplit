@@ -1,16 +1,62 @@
-# React + Vite
+# FareSplit
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+FareSplit is a trip and outing expense-splitting application focused on simple group settlements.
 
-Currently, two official plugins are available:
+## What it does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Sign in with Google.
+- Create and join trips.
+- Add and track shared expenses.
+- Compute balances and suggest settlements.
+- Generate UPI payment links for quick settlement actions.
 
-## React Compiler
+## Tech stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Frontend: React + Vite + TailwindCSS
+- Data/Auth: Firebase (Auth, Firestore, Storage)
+- Backend: Node.js + Express (AI helper endpoints)
 
-## Expanding the ESLint configuration
+## Project structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `src/`: frontend application (pages, components, context, Firebase services)
+- `backend/`: Express API for AI/OCR/voice parsing helpers
+
+## Getting started
+
+### Frontend
+
+1. Install dependencies:
+   - `npm install`
+2. Start development server:
+   - `npm run dev`
+3. Build for production:
+   - `npm run build`
+4. Preview production build:
+   - `npm run preview`
+
+### Backend
+
+1. Move into backend:
+   - `cd backend`
+2. Install dependencies:
+   - `npm install`
+3. Start in development mode:
+   - `npm run dev`
+4. Start in production mode:
+   - `npm start`
+
+## Environment variables
+
+Copy `.env.example` to `.env` in the project root and fill Firebase values:
+
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+
+Backend uses:
+
+- `PORT` (default: `8080`)
+- `CORS_ORIGIN` (comma-separated allowed origins)
