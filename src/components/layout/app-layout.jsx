@@ -349,27 +349,13 @@ function Header({ onOpenMobileSidebar, name, initials, onLogout }) {
         <div className="flex items-center gap-3">
           <NotificationsPopover />
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 text-sm font-semibold text-white shadow-sm">
-                {initials}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/settings')}>
-                <Settings className="mr-2 h-4 w-4" /> My Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/settings')}>
-                <Settings className="mr-2 h-4 w-4" /> Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={onLogout}>
-                <LogOut className="mr-2 h-4 w-4" /> Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <button
+            onClick={() => navigate('/settings')}
+            title="View & Edit Profile Settings"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-sm font-bold text-white shadow-md hover:opacity-90 transition cursor-pointer"
+          >
+            {initials}
+          </button>
         </div>
       </div>
     </header>
