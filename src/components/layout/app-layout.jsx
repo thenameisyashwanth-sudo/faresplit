@@ -128,23 +128,20 @@ function SidebarContent({ onNavigate, initials, name, email, onLogout }) {
 
 function Footer() {
   return (
-    <footer className="border-t border-gray-100 bg-white/60 py-6 backdrop-blur-sm">
+    <footer className="border-t border-gray-100 bg-white/80 py-5 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-sm text-gray-500">
-          © 2026 FareSplit. Built and owned by Yashwanth S.
+        <div className="text-xs font-semibold text-gray-500">
+          © 2026 FareSplit. Built & owned by Yashwanth S.
         </div>
-        <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-          <a className="text-gray-500 hover:text-gray-900" href="#">
-            About
-          </a>
-          <a className="text-gray-500 hover:text-gray-900" href="#">
-            Privacy Policy
-          </a>
-          <a className="text-gray-500 hover:text-gray-900" href="#">
-            Contact
-          </a>
-          <a className="text-gray-500 hover:text-gray-900" href="#">
-            GitHub
+        <div>
+          <a
+            href="https://wa.me/916369535373?text=Hi%20Yashwanth,%20I%20need%20help%20with%20FareSplit"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-50 px-3.5 py-1.5 text-xs font-bold text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition shadow-xs"
+          >
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            WhatsApp Support (+91 6369535373)
           </a>
         </div>
       </div>
