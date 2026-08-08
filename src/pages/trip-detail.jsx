@@ -268,7 +268,7 @@ export function TripDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full min-w-0 max-w-full overflow-x-hidden">
       {/* Top Bar Header */}
       <div className="flex flex-col gap-4 bg-white/80 p-5 sm:p-6 rounded-3xl border border-white/80 shadow-xl backdrop-blur-xl">
         <div className="flex items-start justify-between gap-3">
@@ -356,22 +356,22 @@ export function TripDetailPage() {
       </div>
 
       {/* Responsive Tabs Navigation */}
-      <Tabs defaultValue="overview" className="w-full">
-        <div className="overflow-x-auto pb-1 no-scrollbar">
-          <TabsList className="inline-flex h-11 w-full min-w-max rounded-2xl bg-white/90 p-1 shadow-sm backdrop-blur-xl border border-gray-100">
-            <TabsTrigger className="rounded-xl px-4 text-xs font-bold" value="overview">
+      <Tabs defaultValue="overview" className="w-full min-w-0 max-w-full">
+        <div className="w-full overflow-x-auto pb-1 no-scrollbar flex items-center">
+          <TabsList className="inline-flex h-11 min-w-full sm:min-w-0 rounded-2xl bg-white/90 p-1 shadow-sm backdrop-blur-xl border border-gray-100 items-center justify-start sm:justify-center">
+            <TabsTrigger className="rounded-xl px-3.5 py-1.5 text-xs font-bold shrink-0" value="overview">
               Overview
             </TabsTrigger>
-            <TabsTrigger className="rounded-xl px-4 text-xs font-bold" value="expenses">
+            <TabsTrigger className="rounded-xl px-3.5 py-1.5 text-xs font-bold shrink-0" value="expenses">
               Expenses ({expenses.length})
             </TabsTrigger>
-            <TabsTrigger className="rounded-xl px-4 text-xs font-bold" value="balances">
+            <TabsTrigger className="rounded-xl px-3.5 py-1.5 text-xs font-bold shrink-0" value="balances">
               Balances
             </TabsTrigger>
-            <TabsTrigger className="rounded-xl px-4 text-xs font-bold" value="settlement">
+            <TabsTrigger className="rounded-xl px-3.5 py-1.5 text-xs font-bold shrink-0" value="settlement">
               Settlement ({settlements.length})
             </TabsTrigger>
-            <TabsTrigger className="rounded-xl px-4 text-xs font-bold" value="members">
+            <TabsTrigger className="rounded-xl px-3.5 py-1.5 text-xs font-bold shrink-0" value="members">
               Members ({members.length})
             </TabsTrigger>
           </TabsList>

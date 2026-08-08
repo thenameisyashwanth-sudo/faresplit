@@ -427,15 +427,15 @@ export function AppLayout() {
         ) : null}
       </AnimatePresence>
 
-      <div className="relative z-10 flex min-h-screen flex-col lg:ml-72">
+      <div className="relative z-10 flex min-h-screen flex-col lg:ml-72 min-w-0 max-w-full overflow-x-hidden">
         <Header
           onOpenMobileSidebar={() => setMobileOpen(true)}
           name={name}
           initials={initials}
           onLogout={logout}
         />
-        <main className="flex-1">
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+        <main className="flex-1 min-w-0 max-w-full overflow-x-hidden">
+          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 w-full min-w-0">
             <Outlet />
           </div>
         </main>
