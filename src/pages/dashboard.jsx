@@ -189,8 +189,9 @@ export function DashboardPage() {
             asChild
             className="h-11 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 shadow-lg border border-indigo-400/30"
           >
-            <Link to="/trips">
-              Explore Trips <ArrowRight className="ml-2 h-4 w-4" />
+            <Link to="/trips" className="inline-flex items-center gap-2">
+              <span>Explore Trips</span>
+              <ArrowRight className="h-4 w-4 shrink-0 text-white" />
             </Link>
           </Button>
         </div>

@@ -505,9 +505,10 @@ export function TripDetailPage() {
           <Card className="rounded-3xl border border-white/60 bg-white/70 p-2 shadow-xl backdrop-blur-xl">
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <CardTitle className="text-base font-bold">Expense History</CardTitle>
-              <Button asChild size="sm" className="rounded-xl bg-indigo-600 font-bold">
-                <Link to={`/trips/${trip.id}/add-expense`}>
-                  <Plus className="mr-1 h-3.5 w-3.5" /> Add Expense
+              <Button asChild size="sm" className="h-9 rounded-xl bg-indigo-600 font-bold px-3.5 text-white shadow-xs">
+                <Link to={`/trips/${trip.id}/add-expense`} className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                  <Plus className="h-3.5 w-3.5 shrink-0 text-white" />
+                  <span>Add Expense</span>
                 </Link>
               </Button>
             </CardHeader>
