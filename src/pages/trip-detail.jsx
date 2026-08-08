@@ -268,142 +268,139 @@ export function TripDetailPage() {
   }
 
   return (
-    <div className="space-y-6 w-full min-w-0 max-w-full overflow-x-hidden">
+    <div className="space-y-4 sm:space-y-6 w-full min-w-0 max-w-full overflow-x-hidden">
       {/* Top Bar Header */}
-      <div className="flex flex-col gap-4 bg-white/80 p-5 sm:p-6 rounded-3xl border border-white/80 shadow-xl backdrop-blur-xl">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-start gap-3">
+      <div className="flex flex-col gap-3 bg-white/90 p-4 sm:p-6 rounded-3xl border border-white/80 shadow-xl backdrop-blur-xl">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <Link
               to="/trips"
-              className="mt-1 grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-gray-200/60 bg-white/90 transition hover:bg-white hover:shadow-md"
+              className="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-2xl border border-gray-200/60 bg-white transition hover:bg-gray-50 shadow-xs"
             >
-              <ArrowLeft className="h-5 w-5 text-gray-700" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 text-gray-700" />
             </Link>
-            <div>
-              <h1 className="text-2xl font-black tracking-tight text-gray-900 sm:text-3xl">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl sm:text-3xl font-black tracking-tight text-gray-900 truncate">
                 {trip.name}
               </h1>
-              <p className="text-xs sm:text-sm font-medium text-gray-500 mt-0.5">
+              <p className="text-xs font-medium text-gray-500 truncate">
                 {trip.description || 'Shared expense trip'}
               </p>
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-600">
-                <span className="inline-flex items-center gap-1.5 font-bold rounded-xl bg-indigo-50 px-3 py-1 text-indigo-700">
-                  <Users className="h-3.5 w-3.5" /> {members.length} member{members.length !== 1 ? 's' : ''}
-                </span>
-                <span className="inline-flex items-center gap-1.5 font-bold rounded-xl bg-emerald-50 px-3 py-1 text-emerald-700">
-                  <IndianRupee className="h-3.5 w-3.5" /> Total ₹{totalSpent.toLocaleString('en-IN')}
-                </span>
-              </div>
             </div>
           </div>
-        </div>
 
-        {/* Responsive Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Button asChild className="h-11 rounded-2xl bg-indigo-600 px-5 font-bold hover:bg-indigo-700 shadow-md">
-            <Link to={`/trips/${trip.id}/add-expense`} className="inline-flex items-center gap-2">
+          <Button asChild className="h-10 sm:h-11 rounded-2xl bg-indigo-600 px-3.5 sm:px-5 font-bold hover:bg-indigo-700 shadow-md shrink-0">
+            <Link to={`/trips/${trip.id}/add-expense`} className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs sm:text-sm">
               <Plus className="h-4 w-4 shrink-0 text-white" />
               <span>Add Expense</span>
             </Link>
           </Button>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            <Button
-              onClick={() => {
-                setInviteError('')
-                setInviteSuccess('')
-                setIsInviteModalOpen(true)
-              }}
-              variant="outline"
-              className="h-10 flex-1 sm:flex-initial rounded-xl border-gray-200 bg-white/90 px-3.5 text-xs font-bold shadow-xs"
-            >
-              <Link2 className="mr-1.5 h-3.5 w-3.5 text-indigo-600" /> Invite
-            </Button>
-            <Button
-              onClick={handleCopyJoinLink}
-              variant="outline"
-              className="h-10 flex-1 sm:flex-initial rounded-xl border-gray-200 bg-white/90 px-3.5 text-xs font-bold shadow-xs"
-            >
-              {copiedLink ? (
-                <>
-                  <Check className="mr-1.5 h-3.5 w-3.5 text-emerald-600" /> Copied!
-                </>
-              ) : (
-                <>
-                  <QrCode className="mr-1.5 h-3.5 w-3.5 text-gray-600" /> Share Link
-                </>
-              )}
-            </Button>
-            <Button
-              onClick={() => setIsStatementModalOpen(true)}
-              variant="outline"
-              className="h-10 flex-1 sm:flex-initial rounded-xl border-indigo-200 bg-indigo-50/70 px-3.5 text-xs font-bold text-indigo-600 shadow-xs"
-            >
-              <FileText className="mr-1.5 h-3.5 w-3.5 text-indigo-600" /> Statement
-            </Button>
+        {/* Secondary Action Row (Horizontal Scroll on Mobile) */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+          <span className="inline-flex items-center gap-1 font-bold rounded-xl bg-indigo-50 px-2.5 py-1 text-indigo-700 text-xs shrink-0">
+            <Users className="h-3 w-3" /> {members.length}
+          </span>
+          <span className="inline-flex items-center gap-1 font-bold rounded-xl bg-emerald-50 px-2.5 py-1 text-emerald-700 text-xs shrink-0">
+            <IndianRupee className="h-3 w-3" /> ₹{totalSpent.toLocaleString('en-IN')}
+          </span>
 
-            {isCreator ? (
-              <Button
-                onClick={() => setShowDeleteConfirm(true)}
-                variant="outline"
-                className="h-10 flex-1 sm:flex-initial rounded-xl border-rose-200 bg-rose-50/80 px-3.5 text-xs font-bold text-rose-600 hover:bg-rose-100 shadow-xs"
-              >
-                <Trash2 className="mr-1.5 h-3.5 w-3.5 text-rose-600" /> Delete
-              </Button>
-            ) : null}
-          </div>
+          <Button
+            onClick={() => {
+              setInviteError('')
+              setInviteSuccess('')
+              setIsInviteModalOpen(true)
+            }}
+            variant="outline"
+            className="h-8 rounded-xl border-gray-200 bg-white px-2.5 text-xs font-bold shadow-xs shrink-0"
+          >
+            <Link2 className="mr-1 h-3 w-3 text-indigo-600 shrink-0" /> Invite
+          </Button>
+          <Button
+            onClick={handleCopyJoinLink}
+            variant="outline"
+            className="h-8 rounded-xl border-gray-200 bg-white px-2.5 text-xs font-bold shadow-xs shrink-0"
+          >
+            {copiedLink ? (
+              <>
+                <Check className="mr-1 h-3 w-3 text-emerald-600 shrink-0" /> Copied
+              </>
+            ) : (
+              <>
+                <QrCode className="mr-1 h-3 w-3 text-gray-600 shrink-0" /> Share
+              </>
+            )}
+          </Button>
+          <Button
+            onClick={() => setIsStatementModalOpen(true)}
+            variant="outline"
+            className="h-8 rounded-xl border-indigo-200 bg-indigo-50/70 px-2.5 text-xs font-bold text-indigo-600 shadow-xs shrink-0"
+          >
+            <FileText className="mr-1 h-3 w-3 text-indigo-600 shrink-0" /> Statement
+          </Button>
+
+          {isCreator ? (
+            <Button
+              onClick={() => setShowDeleteConfirm(true)}
+              variant="outline"
+              className="h-8 rounded-xl border-rose-200 bg-rose-50/80 px-2.5 text-xs font-bold text-rose-600 hover:bg-rose-100 shadow-xs shrink-0"
+            >
+              <Trash2 className="mr-1 h-3 w-3 text-rose-600 shrink-0" /> Delete
+            </Button>
+          ) : null}
         </div>
       </div>
 
       {/* Responsive Tabs Navigation */}
       <Tabs defaultValue="overview" className="w-full min-w-0 max-w-full">
         <div className="w-full overflow-x-auto pb-1 no-scrollbar flex items-center">
-          <TabsList className="inline-flex h-11 min-w-full sm:min-w-0 rounded-2xl bg-white/90 p-1 shadow-sm backdrop-blur-xl border border-gray-100 items-center justify-start sm:justify-center">
-            <TabsTrigger className="rounded-xl px-3.5 py-1.5 text-xs font-bold shrink-0" value="overview">
+          <TabsList className="inline-flex h-10 sm:h-11 min-w-full sm:min-w-0 rounded-2xl bg-white/90 p-1 shadow-sm backdrop-blur-xl border border-gray-100 items-center justify-start sm:justify-center">
+            <TabsTrigger className="rounded-xl px-3 sm:px-4 py-1 text-xs font-bold shrink-0" value="overview">
               Overview
             </TabsTrigger>
-            <TabsTrigger className="rounded-xl px-3.5 py-1.5 text-xs font-bold shrink-0" value="expenses">
+            <TabsTrigger className="rounded-xl px-3 sm:px-4 py-1 text-xs font-bold shrink-0" value="expenses">
               Expenses ({expenses.length})
             </TabsTrigger>
-            <TabsTrigger className="rounded-xl px-3.5 py-1.5 text-xs font-bold shrink-0" value="balances">
+            <TabsTrigger className="rounded-xl px-3 sm:px-4 py-1 text-xs font-bold shrink-0" value="balances">
               Balances
             </TabsTrigger>
-            <TabsTrigger className="rounded-xl px-3.5 py-1.5 text-xs font-bold shrink-0" value="settlement">
+            <TabsTrigger className="rounded-xl px-3 sm:px-4 py-1 text-xs font-bold shrink-0" value="settlement">
               Settlement ({settlements.length})
             </TabsTrigger>
-            <TabsTrigger className="rounded-xl px-3.5 py-1.5 text-xs font-bold shrink-0" value="members">
+            <TabsTrigger className="rounded-xl px-3 sm:px-4 py-1 text-xs font-bold shrink-0" value="members">
               Members ({members.length})
             </TabsTrigger>
           </TabsList>
         </div>
 
         {/* OVERVIEW TAB */}
-        <TabsContent value="overview" className="mt-5 w-full space-y-6">
+        <TabsContent value="overview" className="mt-4 w-full space-y-4 sm:space-y-6">
           {/* Overview Stat Cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 w-full">
-            <div className="w-full rounded-3xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-xl">
-              <div className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Total Spending
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full">
+            <div className="w-full rounded-2xl sm:rounded-3xl border border-white/80 bg-white/90 p-3 sm:p-5 shadow-md backdrop-blur-xl">
+              <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-500">
+                Total
               </div>
-              <div className="mt-2 text-2xl font-black text-indigo-900 sm:text-3xl">
+              <div className="mt-1 text-base sm:text-3xl font-black text-indigo-900 truncate">
                 ₹{totalSpent.toLocaleString('en-IN')}
               </div>
             </div>
 
-            <div className="w-full rounded-3xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-xl">
-              <div className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Top Category
+            <div className="w-full rounded-2xl sm:rounded-3xl border border-white/80 bg-white/90 p-3 sm:p-5 shadow-md backdrop-blur-xl">
+              <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-500">
+                Top Cat
               </div>
-              <div className="mt-2 text-2xl font-black text-purple-900 sm:text-3xl truncate">
+              <div className="mt-1 text-base sm:text-3xl font-black text-purple-900 truncate">
                 {mostSpentCategory}
               </div>
             </div>
 
-            <div className="w-full rounded-3xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-xl">
-              <div className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Avg Per Person
+            <div className="w-full rounded-2xl sm:rounded-3xl border border-white/80 bg-white/90 p-3 sm:p-5 shadow-md backdrop-blur-xl">
+              <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-500">
+                Avg/Person
               </div>
-              <div className="mt-2 text-2xl font-black text-emerald-900 sm:text-3xl">
+              <div className="mt-1 text-base sm:text-3xl font-black text-emerald-900 truncate">
                 ₹{avgPerPerson.toLocaleString('en-IN')}
               </div>
             </div>
