@@ -562,38 +562,55 @@ export function TripDetailPage() {
                   Everyone is fully settled up! No transactions needed. 🎉
                 </div>
               ) : (
-                settlements.map((s, idx) => (
-                  <div
-                    key={idx}
-                    className="flex flex-col gap-3 rounded-2xl border border-gray-100/80 bg-white/80 p-4 sm:flex-row sm:items-center sm:justify-between shadow-xs"
-                  >
-                    <div>
-                      <div className="text-sm font-bold text-gray-900">
-                        {s.from} → {s.to}{' '}
-                        <span className="text-indigo-600 font-extrabold">₹{s.amount.toLocaleString('en-IN')}</span>
+                settlements.map((s, idx) => {
+                  const fromMember = memberBalances.find((m) => m.name === s.from)
+                  const toMember = memberBalances.find((m) => m.name === s.to)
+                  const isPayer = user && fromMember && user.uid === fromMember.uid
+                  const isReceiver = user && toMember && user.uid === toMember.uid
+
+                  return (
+                    <div
+                      key={idx}
+                      className="flex flex-col gap-3 rounded-2xl border border-gray-100/80 bg-white/80 p-4 sm:flex-row sm:items-center sm:justify-between shadow-xs"
+                    >
+                      <div>
+                        <div className="text-sm font-bold text-gray-900">
+                          {s.from} → {s.to}{' '}
+                          <span className="text-indigo-600 font-extrabold">₹{s.amount.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="text-xs text-gray-500 font-medium">
+                          {s.upi ? `UPI ID: ${s.upi}` : 'UPI ID not set by recipient'}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500 font-medium">
-                        {s.upi ? `UPI ID: ${s.upi}` : 'UPI ID not set by recipient'}
+                      <div className="flex flex-wrap gap-2 items-center">
+                        {isPayer ? (
+                          <Button
+                            variant="outline"
+                            className="h-10 w-full sm:w-auto rounded-xl border-indigo-200 font-bold text-indigo-600 hover:bg-indigo-50"
+                            onClick={() => {
+                              if (!s.upi) {
+                                alert(`${s.to} has not set up their UPI ID in Settings yet.`)
+                                return
+                              }
+                              triggerConfetti()
+                              setPayeeModal({ open: true, upi: s.upi, name: s.to, amount: s.amount, trip: trip?.name || 'FareSplit' })
+                            }}
+                          >
+                            Pay via UPI / QR
+                          </Button>
+                        ) : isReceiver ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-xl bg-amber-50 px-3.5 py-2 text-xs font-bold text-amber-700 border border-amber-200 shadow-xs">
+                            ⏳ Awaiting payment from {s.from}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 rounded-xl bg-gray-50 px-3 py-1.5 text-xs font-semibold text-gray-600 border border-gray-200">
+                            Pending
+                          </span>
+                        )}
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant="outline"
-                        className="h-10 w-full sm:w-auto rounded-xl border-indigo-200 font-bold text-indigo-600 hover:bg-indigo-50"
-                        onClick={() => {
-                          if (!s.upi) {
-                            alert(`${s.to} has not set up their UPI ID in Settings yet.`)
-                            return
-                          }
-                          triggerConfetti()
-                          setPayeeModal({ open: true, upi: s.upi, name: s.to, amount: s.amount, trip: trip?.name || 'FareSplit' })
-                        }}
-                      >
-                        Pay via UPI / QR
-                      </Button>
-                    </div>
-                  </div>
-                ))
+                  )
+                })
               )}
             </CardContent>
           </Card>
