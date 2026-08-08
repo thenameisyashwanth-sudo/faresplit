@@ -649,16 +649,16 @@ export function TripDetailPage() {
 
             <form onSubmit={handleInviteSubmit} className="mt-4 space-y-4">
               <div>
-                <label className="text-sm font-semibold text-gray-700">Friend&apos;s Username</label>
+                <label className="text-sm font-semibold text-gray-700">Friend&apos;s Username or Email</label>
                 <Input
                   className="mt-1.5 h-11 rounded-xl"
-                  placeholder="e.g., rahul_07"
+                  placeholder="e.g., rahul_07 or friend@gmail.com"
                   value={inviteUsername}
                   onChange={(e) => setInviteUsername(e.target.value)}
                   required
                 />
                 <div className="mt-1.5 text-xs text-gray-500">
-                  Enter their unique FareSplit username set in Settings.
+                  Enter their unique username or signed-up email address.
                 </div>
               </div>
 

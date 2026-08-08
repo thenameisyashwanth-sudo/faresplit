@@ -20,18 +20,70 @@ export async function inviteUserToTripByUsername({
   fromUid,
   toUsername,
 }) {
-  const usernameLower = (toUsername ?? '').trim().toLowerCase()
-  if (!usernameLower) throw new Error('Username is required')
+  const target = (toUsername ?? '').trim().toLowerCase().replace(/^@/, '')
+  if (!target) throw new Error('Username or email is required')
 
-  const userSnap = await getDocs(
+  let userSnap = await getDocs(
     query(
       collection(db, 'Users'),
-      where('usernameLower', '==', usernameLower),
+      where('usernameLower', '==', target),
       limit(1)
     )
   )
-  if (userSnap.empty) throw new Error('User not found')
+
+  if (userSnap.empty) {
+    userSnap = await getDocs(
+      query(
+        collection(db, 'Users'),
+        where('emailLower', '==', target),
+        limit(1)
+      )
+    )
+  }
+
+  if (userSnap.empty) {
+    userSnap = await getDocs(
+      query(
+        collection(db, 'Users'),
+        where('email', '==', toUsername.trim()),
+        limit(1)
+      )
+    )
+  }
+
+  if (userSnap.empty) {
+    throw new Error(`User "${toUsername}" not found on FareSplit. Ask them to sign up first!`)
+  }
+
   const toUid = userSnap.docs[0].id
+  const targetUser = userSnap.docs[0].data()
+
+  if (toUid === fromUid) {
+    throw new Error('You cannot invite yourself to a trip.')
+  }
+
+  const existingMember = await getDoc(
+    doc(db, 'TripMembers', tripMemberDocId(tripId, toUid))
+  )
+  if (existingMember.exists()) {
+    throw new Error(
+      `${targetUser.fullName || targetUser.username || 'User'} is already a member of this trip!`
+    )
+  }
+
+  const existingInvite = await getDocs(
+    query(
+      collection(db, 'TripInvites'),
+      where('tripId', '==', tripId),
+      where('toUid', '==', toUid),
+      where('status', '==', 'pending')
+    )
+  )
+  if (!existingInvite.empty) {
+    throw new Error(
+      `An invitation is already pending for ${targetUser.fullName || targetUser.username}!`
+    )
+  }
 
   const inviteRef = await addDoc(collection(db, 'TripInvites'), {
     tripId,

@@ -51,13 +51,17 @@ async function syncUserProfile(fbUser) {
     const snap = await getDoc(ref)
 
     if (!snap.exists()) {
+      const defaultUsername = fbUser.email
+        ? fbUser.email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '')
+        : `user_${fbUser.uid.slice(0, 6)}`
       const baseProfile = {
         uid: fbUser.uid,
         email: fbUser.email ?? '',
+        emailLower: (fbUser.email ?? '').toLowerCase(),
         fullName: fbUser.displayName ?? '',
         photoURL: fbUser.photoURL ?? '',
-        username: '',
-        usernameLower: '',
+        username: defaultUsername,
+        usernameLower: defaultUsername.toLowerCase(),
         phoneNumber: '',
         upiId: '',
         upiQrUrl: '',
@@ -68,13 +72,31 @@ async function syncUserProfile(fbUser) {
       return baseProfile
     }
 
-    return snap.data()
+    const existing = snap.data()
+    const patch = {}
+    if (!existing.emailLower && fbUser.email) {
+      patch.emailLower = fbUser.email.toLowerCase()
+    }
+    if (!existing.username) {
+      const defaultUsername = fbUser.email
+        ? fbUser.email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '')
+        : `user_${fbUser.uid.slice(0, 6)}`
+      patch.username = defaultUsername
+      patch.usernameLower = defaultUsername.toLowerCase()
+    }
+    if (Object.keys(patch).length > 0) {
+      await updateDoc(ref, patch)
+      return { ...existing, ...patch }
+    }
+
+    return existing
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('[FareSplit] Failed to sync user profile from Firestore:', err)
     return {
       uid: fbUser.uid,
       email: fbUser.email ?? '',
+      emailLower: (fbUser.email ?? '').toLowerCase(),
       fullName: fbUser.displayName ?? '',
       photoURL: fbUser.photoURL ?? '',
       username: fbUser.email ? fbUser.email.split('@')[0] : 'user',

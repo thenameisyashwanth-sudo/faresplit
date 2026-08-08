@@ -40,13 +40,26 @@ export async function getTrip(tripId) {
 }
 
 export async function listTripsForUser(uid) {
-  const memberSnap = await getDocs(
-    query(collection(db, 'TripMembers'), where('uid', '==', uid))
-  )
+  if (!uid) return []
+  try {
+    const memberSnap = await getDocs(
+      query(collection(db, 'TripMembers'), where('uid', '==', uid))
+    )
+    const memberTripIds = memberSnap.docs.map((d) => d.data().tripId).filter(Boolean)
 
-  const tripIds = memberSnap.docs.map((d) => d.data().tripId).filter(Boolean)
-  const trips = await Promise.all(tripIds.map((id) => getTrip(id)))
-  return trips.filter(Boolean)
+    const creatorSnap = await getDocs(
+      query(collection(db, 'Trips'), where('creatorUid', '==', uid))
+    )
+    const creatorTripIds = creatorSnap.docs.map((d) => d.id)
+
+    const allIds = Array.from(new Set([...memberTripIds, ...creatorTripIds]))
+    const trips = await Promise.all(allIds.map((id) => getTrip(id)))
+    return trips.filter(Boolean)
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[FareSplit] Error listing trips for user:', err)
+    return []
+  }
 }
 
 export async function getTripMembers(tripId) {
@@ -73,5 +86,6 @@ export async function getTripMembers(tripId) {
   )
   return profiles
 }
+
 
 
