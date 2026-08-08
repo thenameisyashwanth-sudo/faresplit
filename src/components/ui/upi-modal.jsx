@@ -5,7 +5,12 @@ import QRCodeRaw from 'react-qr-code'
 import { Button } from '@/components/ui/button'
 import { generateUpiLink } from '@/utils/upi'
 
-const QRCode = typeof QRCodeRaw === 'function' ? QRCodeRaw : QRCodeRaw?.default
+const QRCode =
+  QRCodeRaw?.default?.default ||
+  QRCodeRaw?.default?.QRCode ||
+  QRCodeRaw?.QRCode ||
+  QRCodeRaw?.default ||
+  QRCodeRaw
 
 export function UpiPaymentModal({ isOpen, onClose, upiId, name, amount, tripName }) {
   const [copied, setCopied] = useState(false)

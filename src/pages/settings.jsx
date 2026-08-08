@@ -2,7 +2,12 @@ import { Check, LogOut, Phone, QrCode, User, Wallet } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import QRCodeRaw from 'react-qr-code'
 
-const QRCode = typeof QRCodeRaw === 'function' ? QRCodeRaw : QRCodeRaw?.default
+const QRCode =
+  QRCodeRaw?.default?.default ||
+  QRCodeRaw?.default?.QRCode ||
+  QRCodeRaw?.QRCode ||
+  QRCodeRaw?.default ||
+  QRCodeRaw
 
 import { CardBody, CardContainer, CardItem } from '@/components/ui/3d-card'
 import { Button } from '@/components/ui/button'
