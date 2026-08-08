@@ -3,10 +3,12 @@ import {
   ArrowLeft,
   Check,
   Crown,
+  FileText,
   IndianRupee,
   Link2,
   Loader2,
   Plus,
+  Printer,
   QrCode,
   Sparkles,
   Users,
@@ -75,6 +77,7 @@ export function TripDetailPage() {
 
   // Copied link state
   const [copiedLink, setCopiedLink] = useState(false)
+  const [isStatementModalOpen, setIsStatementModalOpen] = useState(false)
 
   const loadData = async () => {
     if (!tripId) return
@@ -305,6 +308,13 @@ export function TripDetailPage() {
                 <QrCode className="mr-2 h-4 w-4" /> Share Link
               </>
             )}
+          </Button>
+          <Button
+            onClick={() => setIsStatementModalOpen(true)}
+            variant="outline"
+            className="h-11 rounded-2xl border-white/80 bg-white/70 px-4 font-bold shadow-sm backdrop-blur-md text-indigo-600"
+          >
+            <FileText className="mr-2 h-4 w-4 text-indigo-600" /> Full Statement
           </Button>
         </div>
       </div>
@@ -728,6 +738,135 @@ export function TripDetailPage() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Full Itemized Summary Statement Modal */}
+      {isStatementModalOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+              <div>
+                <h3 className="text-xl font-extrabold text-gray-900 flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-indigo-600" /> Trip Expense Summary Statement
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Itemized breakdown of all expenses for <span className="font-bold text-gray-800">{trip?.name}</span>
+                </p>
+              </div>
+              <button
+                onClick={() => setIsStatementModalOpen(false)}
+                className="rounded-full p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Trip Overview Stat Header */}
+            <div className="grid grid-cols-3 gap-3 rounded-2xl bg-indigo-50/70 p-4 text-center">
+              <div>
+                <div className="text-xs font-semibold text-gray-500">Total Spent</div>
+                <div className="text-lg font-black text-indigo-900">₹{totalSpent.toLocaleString('en-IN')}</div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-gray-500">Total Expenses</div>
+                <div className="text-lg font-black text-purple-900">{expenses.length}</div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-gray-500">Members</div>
+                <div className="text-lg font-black text-emerald-900">{members.length}</div>
+              </div>
+            </div>
+
+            {/* Itemized Expenses List */}
+            <div>
+              <h4 className="text-sm font-bold text-gray-900 mb-2.5">Itemized Expenses List</h4>
+              {expenses.length === 0 ? (
+                <div className="rounded-xl border border-dashed p-6 text-center text-xs text-gray-500 font-medium">
+                  No expenses logged for this trip yet.
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-2xl border border-gray-100">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-gray-50 text-gray-600 font-bold uppercase tracking-wider">
+                      <tr>
+                        <th className="px-3.5 py-3">Description</th>
+                        <th className="px-3.5 py-3">Category</th>
+                        <th className="px-3.5 py-3">Paid By</th>
+                        <th className="px-3.5 py-3 text-right">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 font-medium text-gray-800">
+                      {expenses.map((e) => {
+                        const payer = members.find((m) => m.uid === e.paidByUid)
+                        const payerName = payer ? payer.name : 'Someone'
+                        return (
+                          <tr key={e.id} className="hover:bg-gray-50/50">
+                            <td className="px-3.5 py-3 font-semibold text-gray-900">
+                              {e.description || 'Expense'}
+                            </td>
+                            <td className="px-3.5 py-3">
+                              <span className="inline-block rounded-lg bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-600">
+                                {e.category || 'Other'}
+                              </span>
+                            </td>
+                            <td className="px-3.5 py-3">{payerName}</td>
+                            <td className="px-3.5 py-3 text-right font-black text-indigo-600">
+                              ₹{Number(e.amount).toLocaleString('en-IN')}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Final Settlement Breakdown */}
+            <div>
+              <h4 className="text-sm font-bold text-gray-900 mb-2.5">Final Settlement Dues</h4>
+              {settlements.length === 0 ? (
+                <div className="rounded-xl bg-emerald-50 p-3 text-center text-xs font-bold text-emerald-700">
+                  Everyone is fully settled up!
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {settlements.map((s, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50/60 px-3.5 py-2.5 text-xs font-semibold text-gray-800"
+                    >
+                      <span>
+                        <span className="font-bold text-rose-600">{s.from}</span> pays{' '}
+                        <span className="font-bold text-emerald-600">{s.to}</span>
+                      </span>
+                      <span className="font-black text-indigo-600 text-sm">
+                        ₹{s.amount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+              <Button
+                variant="outline"
+                onClick={() => window.print()}
+                className="h-10 rounded-xl border-gray-200 text-xs font-bold text-gray-700"
+              >
+                <Printer className="mr-1.5 h-4 w-4" /> Print / Save PDF
+              </Button>
+              <Button
+                onClick={() => setIsStatementModalOpen(false)}
+                className="h-10 rounded-xl bg-indigo-600 px-6 text-xs font-bold text-white hover:bg-indigo-700"
+              >
+                Close Statement
+              </Button>
+            </div>
           </div>
         </div>
       ) : null}
