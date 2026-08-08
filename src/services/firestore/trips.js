@@ -41,25 +41,52 @@ export async function getTrip(tripId) {
 
 export async function listTripsForUser(uid) {
   if (!uid) return []
+  const memberTripIds = []
+  const creatorTripIds = []
+
   try {
     const memberSnap = await getDocs(
       query(collection(db, 'TripMembers'), where('uid', '==', uid))
     )
-    const memberTripIds = memberSnap.docs.map((d) => d.data().tripId).filter(Boolean)
+    memberSnap.docs.forEach((d) => {
+      const tid = d.data().tripId
+      if (tid) memberTripIds.push(tid)
+    })
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('[FareSplit] TripMembers query error:', err)
+  }
 
+  try {
     const creatorSnap = await getDocs(
       query(collection(db, 'Trips'), where('creatorUid', '==', uid))
     )
-    const creatorTripIds = creatorSnap.docs.map((d) => d.id)
-
-    const allIds = Array.from(new Set([...memberTripIds, ...creatorTripIds]))
-    const trips = await Promise.all(allIds.map((id) => getTrip(id)))
-    return trips.filter(Boolean)
+    creatorSnap.docs.forEach((d) => creatorTripIds.push(d.id))
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.error('[FareSplit] Error listing trips for user:', err)
-    return []
+    console.warn('[FareSplit] Trips creator query error:', err)
   }
+
+  let allIds = Array.from(new Set([...memberTripIds, ...creatorTripIds]))
+
+  // Fallback: If query returned no IDs (e.g. missing Firestore index or permissions issue), fetch all trips and filter by creatorUid
+  if (allIds.length === 0) {
+    try {
+      const allTripsSnap = await getDocs(collection(db, 'Trips'))
+      allTripsSnap.docs.forEach((d) => {
+        const data = d.data()
+        if (data.creatorUid === uid) {
+          allIds.push(d.id)
+        }
+      })
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn('[FareSplit] Fallback trips fetch error:', err)
+    }
+  }
+
+  const trips = await Promise.all(allIds.map((id) => getTrip(id)))
+  return trips.filter(Boolean)
 }
 
 export async function getTripMembers(tripId) {

@@ -57,9 +57,22 @@ export function TripsPage() {
       const rawTrips = await listTripsForUser(user.uid)
       const enriched = await Promise.all(
         rawTrips.map(async (t, idx) => {
-          const members = await getTripMembers(t.id)
-          const expenses = await listTripExpenses(t.id)
-          const totalSpent = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0)
+          let memberCount = 1
+          let totalSpent = 0
+
+          try {
+            const members = await getTripMembers(t.id)
+            memberCount = members.length || 1
+          } catch (e) {
+            // ignore member query failure
+          }
+
+          try {
+            const expenses = await listTripExpenses(t.id)
+            totalSpent = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0)
+          } catch (e) {
+            // ignore expense query failure
+          }
           
           let formattedDate = 'Recently'
           if (t.createdAt?.toDate) {
@@ -72,7 +85,7 @@ export function TripsPage() {
 
           return {
             ...t,
-            members: members.length,
+            members: memberCount,
             total: totalSpent,
             status: t.status || 'Active',
             date: formattedDate,
