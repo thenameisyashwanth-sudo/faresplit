@@ -126,13 +126,109 @@ function SidebarContent({ onNavigate, initials, name, email, onLogout }) {
   )
 }
 
-function Footer() {
-  const handleWhatsAppContact = (e) => {
-    e.preventDefault()
-    const url = 'https://api.whatsapp.com/send?phone=916369535372&text=Hi%20Yashwanth,%20I%20have%20an%20issue%20with%20FareSplit'
-    window.open(url, '_blank', 'noopener,noreferrer')
+function ContactModal({ isOpen, onClose }) {
+  const [issueText, setIssueText] = useState('')
+  const [aiSuggestion, setAiSuggestion] = useState('')
+
+  if (!isOpen) return null
+
+  const handleAskAI = () => {
+    if (!issueText.trim()) return
+    const text = issueText.toLowerCase()
+    if (text.includes('pay') || text.includes('upi') || text.includes('qr')) {
+      setAiSuggestion('💡 AI Tip: You can set or update your UPI ID & Custom Payment QR Code in Settings! In any trip workspace, click "Pay" on settlements to view instant payment options.')
+    } else if (text.includes('split') || text.includes('expense') || text.includes('add')) {
+      setAiSuggestion('💡 AI Tip: To add an expense, open your trip workspace and click "+ Add Expense". Select participants and choose equal or custom split!')
+    } else if (text.includes('delete') || text.includes('remove')) {
+      setAiSuggestion('💡 AI Tip: Trip creators can delete a trip anytime using the red "Delete" button inside the trip workspace or trips list.')
+    } else {
+      setAiSuggestion('💡 AI Tip: Check your Profile Settings to ensure your details are updated, or use the floating AI Advisor on the Dashboard for full workspace insights!')
+    }
   }
 
+  const handleRedirectWhatsApp = () => {
+    const text = issueText.trim()
+      ? `Hi Yashwanth, I am facing this issue on FareSplit: "${issueText.trim()}"`
+      : 'Hi Yashwanth, I need help with FareSplit.'
+    const url = `https://api.whatsapp.com/send?phone=916369535372&text=${encodeURIComponent(text)}`
+    window.open(url, '_blank', 'noopener,noreferrer')
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-md">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl"
+      >
+        <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+          <div className="flex items-center gap-2">
+            <div className="grid h-9 w-9 place-items-center rounded-2xl bg-indigo-50 text-indigo-600">
+              <HelpCircle className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-gray-900">Contact Support</h3>
+              <p className="text-xs text-gray-500 font-medium">Facing an issue or need help?</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mt-4 space-y-4">
+          <div>
+            <label className="text-xs font-semibold text-gray-700">
+              Describe your issue or question
+            </label>
+            <textarea
+              rows={3}
+              className="mt-1.5 w-full rounded-2xl border border-gray-200 p-3 text-xs focus:border-indigo-500 focus:outline-none"
+              placeholder="e.g., How do I add my payment QR code? Or payment issue..."
+              value={issueText}
+              onChange={(e) => setIssueText(e.target.value)}
+            />
+          </div>
+
+          {aiSuggestion ? (
+            <div className="rounded-2xl border border-indigo-100 bg-indigo-50/80 p-3.5 text-xs text-indigo-900 font-medium">
+              {aiSuggestion}
+            </div>
+          ) : null}
+
+          <div className="flex flex-col gap-2 pt-2">
+            <Button
+              type="button"
+              onClick={handleAskAI}
+              variant="outline"
+              disabled={!issueText.trim()}
+              className="h-11 w-full rounded-2xl border-indigo-200 bg-indigo-50/60 text-indigo-700 font-bold hover:bg-indigo-100"
+            >
+              <Sparkles className="mr-2 h-4 w-4 text-indigo-600" />
+              Try Instant AI Solution First
+            </Button>
+
+            <Button
+              type="button"
+              onClick={handleRedirectWhatsApp}
+              className="h-11 w-full rounded-2xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 shadow-md"
+            >
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Connect to Owner on WhatsApp
+            </Button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+function Footer({ onOpenContact }) {
   return (
     <footer className="border-t border-gray-100 bg-white/80 py-5 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-6 sm:flex-row sm:items-center sm:justify-between">
@@ -142,11 +238,11 @@ function Footer() {
         <div>
           <button
             type="button"
-            onClick={handleWhatsAppContact}
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition shadow-xs cursor-pointer"
+            onClick={onOpenContact}
+            className="text-xs font-bold text-gray-600 hover:text-indigo-600 transition flex items-center gap-1.5 cursor-pointer"
           >
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            Contact Owner on WhatsApp (+91 6369535372)
+            <HelpCircle className="h-3.5 w-3.5 text-indigo-500" />
+            <span>Contact</span>
           </button>
         </div>
       </div>
@@ -279,6 +375,7 @@ function Header({ onOpenMobileSidebar, name, initials, onLogout }) {
 export function AppLayout() {
   const { user, profile, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [contactModalOpen, setContactModalOpen] = useState(false)
 
   const name = (profile?.fullName || user?.displayName || 'there').trim()
   const email = (user?.email || profile?.email || '').trim()
@@ -338,8 +435,13 @@ export function AppLayout() {
             <Outlet />
           </div>
         </main>
-        <Footer />
+        <Footer onOpenContact={() => setContactModalOpen(true)} />
       </div>
+
+      <ContactModal
+        isOpen={contactModalOpen}
+        onClose={() => setContactModalOpen(false)}
+      />
     </div>
   )
 }
