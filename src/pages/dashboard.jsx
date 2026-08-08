@@ -165,33 +165,31 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-8 relative">
-      {/* Laser Beams Animated Background Header */}
+      {/* Clean & Rich Dashboard Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 p-6 text-white shadow-2xl sm:p-8 border border-indigo-500/20"
+        className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 p-6 text-white shadow-xl sm:p-8"
       >
-        <BackgroundBeams />
-
-        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <Badge className="mb-2 bg-indigo-500/20 text-indigo-300 border-indigo-500/40 backdrop-blur-md font-bold">
-              <Sparkles className="mr-1 h-3.5 w-3.5 text-amber-300 animate-pulse" /> AI Financial Workspace
+            <Badge className="mb-2 bg-white/20 text-white font-bold backdrop-blur-md border-0">
+              <Sparkles className="mr-1 h-3.5 w-3.5 text-amber-300" /> Financial Workspace
             </Badge>
-            <h1 className="text-2xl font-black tracking-tight sm:text-3xl bg-gradient-to-r from-white via-indigo-100 to-purple-200 bg-clip-text text-transparent">
-              FareSplit AI Dashboard
+            <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+              Dashboard
             </h1>
-            <p className="mt-1 text-xs text-indigo-200/80 sm:text-sm">
-              Real-time Firestore sync, AI expense advisor & instant UPI settlements
+            <p className="mt-1 text-xs text-white/80 sm:text-sm font-medium">
+              Smart expense management, trip splitting & instant settlements
             </p>
           </div>
           <Button
             asChild
-            className="h-11 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold hover:from-indigo-600 hover:to-purple-700 shadow-lg border border-indigo-400/30"
+            className="h-11 rounded-2xl bg-white text-indigo-700 font-bold hover:bg-white/90 shadow-md border-0"
           >
             <Link to="/trips" className="inline-flex items-center gap-2">
               <span>Explore Trips</span>
-              <ArrowRight className="h-4 w-4 shrink-0 text-white" />
+              <ArrowRight className="h-4 w-4 shrink-0 text-indigo-700" />
             </Link>
           </Button>
         </div>
