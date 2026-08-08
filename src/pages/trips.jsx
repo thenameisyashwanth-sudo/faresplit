@@ -1,6 +1,6 @@
 import confetti from 'canvas-confetti'
 import { motion } from 'framer-motion'
-import { Loader2, Map, Plus, Sparkles, Users, X } from 'lucide-react'
+import { Loader2, Map, Plus, Sparkles, Trash2, Users, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/auth-context'
 import { listTripExpenses } from '@/services/firestore/expenses'
-import { createTrip, getTripMembers, listTripsForUser } from '@/services/firestore/trips'
+import { createTrip, deleteTrip, getTripMembers, listTripsForUser } from '@/services/firestore/trips'
 
 const gradients = [
   'from-indigo-600 via-purple-600 to-indigo-800',
@@ -201,10 +201,26 @@ export function TripsPage() {
               <CardBody className="group/card relative w-full overflow-hidden rounded-3xl border border-white/80 bg-white/90 shadow-xl backdrop-blur-xl transition duration-300 hover:shadow-2xl">
                 <div className={['h-36 bg-gradient-to-br p-5 text-white', t.gradient].join(' ')}>
                   <div className="flex h-full flex-col justify-between">
-                    <div>
+                    <div className="flex items-center justify-between">
                       <Badge className="bg-white/20 text-white font-bold backdrop-blur-md hover:bg-white/20">
                         {t.status}
                       </Badge>
+                      {user && t.creatorUid === user.uid ? (
+                        <button
+                          onClick={async (e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            if (window.confirm(`Are you sure you want to delete "${t.name}"?`)) {
+                              await deleteTrip(t.id)
+                              fetchTrips()
+                            }
+                          }}
+                          title="Delete Trip"
+                          className="rounded-full bg-white/10 p-1.5 text-white/70 backdrop-blur-md transition hover:bg-rose-500 hover:text-white"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      ) : null}
                     </div>
                     <div>
                       <CardItem translateZ="30" className="text-xl font-black text-white truncate">

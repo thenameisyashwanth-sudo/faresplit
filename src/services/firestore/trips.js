@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -31,6 +32,46 @@ export async function createTrip({ name, description, creatorUid }) {
   })
 
   return tripRef.id
+}
+
+export async function deleteTrip(tripId) {
+  if (!tripId) return false
+
+  try {
+    await deleteDoc(doc(db, 'Trips', tripId))
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('[FareSplit] Error deleting main trip document:', err)
+  }
+
+  try {
+    const memberSnap = await getDocs(
+      query(collection(db, 'TripMembers'), where('tripId', '==', tripId))
+    )
+    await Promise.all(memberSnap.docs.map((d) => deleteDoc(d.ref)))
+  } catch (err) {
+    // ignore
+  }
+
+  try {
+    const expenseSnap = await getDocs(
+      query(collection(db, 'Expenses'), where('tripId', '==', tripId))
+    )
+    await Promise.all(expenseSnap.docs.map((d) => deleteDoc(d.ref)))
+  } catch (err) {
+    // ignore
+  }
+
+  try {
+    const inviteSnap = await getDocs(
+      query(collection(db, 'TripInvites'), where('tripId', '==', tripId))
+    )
+    await Promise.all(inviteSnap.docs.map((d) => deleteDoc(d.ref)))
+  } catch (err) {
+    // ignore
+  }
+
+  return true
 }
 
 export async function getTrip(tripId) {

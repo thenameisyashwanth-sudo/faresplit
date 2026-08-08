@@ -11,11 +11,12 @@ import {
   Printer,
   QrCode,
   Sparkles,
+  Trash2,
   Users,
   X,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   Area,
   AreaChart,
@@ -39,7 +40,7 @@ import { useAuth } from '@/context/auth-context'
 import { computeNetBalancesFromExpenses } from '@/services/firestore/balances'
 import { listTripExpenses } from '@/services/firestore/expenses'
 import { inviteUserToTripByUsername } from '@/services/firestore/invites'
-import { getTrip, getTripMembers } from '@/services/firestore/trips'
+import { deleteTrip, getTrip, getTripMembers } from '@/services/firestore/trips'
 import { minimizeTransactions } from '@/utils/settlement'
 import { generateUpiLink } from '@/utils/upi'
 
@@ -61,6 +62,7 @@ import { UpiPaymentModal } from '@/components/ui/upi-modal'
 export function TripDetailPage() {
   const { tripId } = useParams()
   const { user } = useAuth()
+  const navigate = useNavigate()
 
   const [trip, setTrip] = useState(null)
   const [members, setMembers] = useState([])
@@ -78,6 +80,23 @@ export function TripDetailPage() {
   // Copied link state
   const [copiedLink, setCopiedLink] = useState(false)
   const [isStatementModalOpen, setIsStatementModalOpen] = useState(false)
+
+  // Delete trip state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  const isCreator = user && trip && user.uid === trip.creatorUid
+
+  const handleDeleteTrip = async () => {
+    setDeleting(true)
+    try {
+      await deleteTrip(tripId)
+      navigate('/trips')
+    } catch (err) {
+      alert(err?.message || 'Failed to delete trip')
+      setDeleting(false)
+    }
+  }
 
   const loadData = async () => {
     if (!tripId) return
@@ -316,6 +335,16 @@ export function TripDetailPage() {
           >
             <FileText className="mr-2 h-4 w-4 text-indigo-600" /> Full Statement
           </Button>
+
+          {isCreator ? (
+            <Button
+              onClick={() => setShowDeleteConfirm(true)}
+              variant="outline"
+              className="h-11 rounded-2xl border-rose-200 bg-rose-50/80 px-4 font-bold text-rose-600 hover:bg-rose-100 shadow-sm"
+            >
+              <Trash2 className="mr-2 h-4 w-4 text-rose-600" /> Delete Trip
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -865,6 +894,45 @@ export function TripDetailPage() {
                 className="h-10 rounded-xl bg-indigo-600 px-6 text-xs font-bold text-white hover:bg-indigo-700"
               >
                 Close Statement
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Delete Trip Confirmation Modal */}
+      {showDeleteConfirm ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl space-y-4 text-center">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-rose-100 text-rose-600">
+              <Trash2 className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Delete Trip?</h3>
+              <p className="mt-1 text-xs text-gray-500 font-medium">
+                Are you sure you want to delete <span className="font-bold text-gray-800">{trip?.name}</span>? This will permanently delete all expenses and member records for this trip.
+              </p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="h-11 flex-1 rounded-xl font-bold"
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={deleting}
+                onClick={handleDeleteTrip}
+                className="h-11 flex-1 rounded-xl bg-rose-600 font-bold hover:bg-rose-700 text-white"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
+                  </>
+                ) : (
+                  'Yes, Delete'
+                )}
               </Button>
             </div>
           </div>

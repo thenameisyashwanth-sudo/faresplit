@@ -70,6 +70,13 @@ function NavItem({ to, label, icon: Icon, end }) {
 }
 
 function SidebarContent({ onNavigate, initials, name, email, onLogout }) {
+  const navigate = useNavigate()
+
+  const handleProfileClick = () => {
+    if (onNavigate) onNavigate()
+    navigate('/settings')
+  }
+
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-20 items-center gap-3 px-6">
@@ -87,22 +94,33 @@ function SidebarContent({ onNavigate, initials, name, email, onLogout }) {
             <NavItem {...item} />
           </div>
         ))}
+        <div onClick={onNavigate ? () => onNavigate() : undefined}>
+          <NavItem to="/settings" label="Settings" icon={Settings} />
+        </div>
       </nav>
 
       <div className="mt-auto px-4 pb-6">
-        <button
-          onClick={onLogout}
-          className="flex w-full items-center gap-3 rounded-xl bg-white/5 p-4 text-left transition hover:bg-white/10"
-        >
-          <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 text-white">
-            {initials}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold text-white">{name}</div>
-            <div className="truncate text-xs text-white/50">{email}</div>
-          </div>
-          <LogOut className="h-4 w-4 text-white/40" />
-        </button>
+        <div className="flex items-center gap-2 rounded-2xl bg-white/5 p-3.5 transition hover:bg-white/10">
+          <button
+            onClick={handleProfileClick}
+            className="flex min-w-0 flex-1 items-center gap-3 text-left focus:outline-none"
+          >
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 text-sm font-bold text-white shadow-md">
+              {initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-semibold text-white">{name}</div>
+              <div className="truncate text-xs text-white/60 font-medium">View & Edit Profile</div>
+            </div>
+          </button>
+          <button
+            onClick={onLogout}
+            title="Sign Out"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl text-white/50 hover:bg-white/10 hover:text-rose-300 transition"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   )
