@@ -1,13 +1,17 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   Bell,
+  HelpCircle,
   LayoutDashboard,
   LogOut,
   Menu,
+  MessageSquare,
   ReceiptIndianRupee,
   Settings,
+  Sparkles,
   Users,
   Wallet,
+  X,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
