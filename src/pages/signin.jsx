@@ -1,15 +1,19 @@
-import { Wallet } from 'lucide-react'
-import { useEffect } from 'react'
+import { Loader2, Wallet } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/context/auth-context'
+import { missingFirebaseConfig } from '@/services/firebase'
 
 export function SignInPage() {
-  const { user, signInWithGoogle } = useAuth()
+  const { user, signInWithGoogle, authError } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const [signingIn, setSigningIn] = useState(false)
+  const [error, setError] = useState('')
+  const displayError = error || authError
 
   useEffect(() => {
     if (!user) return
@@ -32,11 +36,42 @@ export function SignInPage() {
               </div>
             </div>
 
+            {missingFirebaseConfig.length ? (
+              <div className="mt-7 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                Firebase is not configured. Copy <code>.env.example</code> to <code>.env</code>,
+                restart the dev server, then try again.
+              </div>
+            ) : null}
+
+            {displayError ? (
+              <div className="mt-7 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {displayError}
+              </div>
+            ) : null}
+
             <Button
-              onClick={signInWithGoogle}
+              disabled={signingIn || missingFirebaseConfig.length > 0}
+              onClick={async () => {
+                setError('')
+                setSigningIn(true)
+                try {
+                  await signInWithGoogle()
+                } catch (err) {
+                  setError(err?.message ?? 'Google sign-in failed. Please try again.')
+                } finally {
+                  setSigningIn(false)
+                }
+              }}
               className="mt-7 h-12 w-full rounded-xl bg-indigo-600 text-base hover:bg-indigo-700"
             >
-              Continue with Google
+              {signingIn ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in with Google...
+                </>
+              ) : (
+                'Continue with Google'
+              )}
             </Button>
 
             <div className="mt-4 text-center text-xs text-gray-500">

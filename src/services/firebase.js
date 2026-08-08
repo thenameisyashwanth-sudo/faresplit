@@ -16,6 +16,8 @@ const missing = Object.entries(firebaseConfig)
   .filter(([, v]) => !v)
   .map(([k]) => k)
 
+export const missingFirebaseConfig = missing
+
 if (missing.length) {
   // eslint-disable-next-line no-console
   console.warn(

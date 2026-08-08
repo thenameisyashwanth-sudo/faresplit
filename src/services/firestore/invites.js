@@ -62,7 +62,26 @@ export async function listPendingInvitesForUser(uid) {
       where('status', '==', 'pending')
     )
   )
-  return inviteSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
+  const invites = inviteSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
+
+  return Promise.all(
+    invites.map(async (inv) => {
+      let tripName = 'Trip'
+      let fromUsername = 'User'
+      if (inv.tripId) {
+        const tSnap = await getDoc(doc(db, 'Trips', inv.tripId))
+        if (tSnap.exists()) tripName = tSnap.data().name || 'Trip'
+      }
+      if (inv.fromUid) {
+        const uSnap = await getDoc(doc(db, 'Users', inv.fromUid))
+        if (uSnap.exists()) {
+          const uData = uSnap.data()
+          fromUsername = uData.username || uData.fullName || 'User'
+        }
+      }
+      return { ...inv, tripName, fromUsername }
+    })
+  )
 }
 
 export async function respondToInvite({ inviteId, accept }) {
@@ -87,4 +106,18 @@ export async function respondToInvite({ inviteId, accept }) {
 
   return true
 }
+
+export async function joinTripByCode({ tripId, uid }) {
+  const tripSnap = await getDoc(doc(db, 'Trips', tripId))
+  if (!tripSnap.exists()) throw new Error('Trip not found')
+
+  await setDoc(doc(db, 'TripMembers', tripMemberDocId(tripId, uid)), {
+    tripId,
+    uid,
+    role: 'member',
+    joinedAt: serverTimestamp(),
+  })
+  return true
+}
+
 

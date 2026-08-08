@@ -49,3 +49,29 @@ export async function listTripsForUser(uid) {
   return trips.filter(Boolean)
 }
 
+export async function getTripMembers(tripId) {
+  const memberSnap = await getDocs(
+    query(collection(db, 'TripMembers'), where('tripId', '==', tripId))
+  )
+  const membersData = memberSnap.docs.map((d) => d.data())
+  
+  const profiles = await Promise.all(
+    membersData.map(async (m) => {
+      const userSnap = await getDoc(doc(db, 'Users', m.uid))
+      const userData = userSnap.exists() ? userSnap.data() : {}
+      return {
+        uid: m.uid,
+        role: m.role || 'member',
+        name: userData.fullName || userData.username || 'User',
+        fullName: userData.fullName || '',
+        username: userData.username || '',
+        email: userData.email || '',
+        upiId: userData.upiId || '',
+        photoURL: userData.photoURL || '',
+      }
+    })
+  )
+  return profiles
+}
+
+

@@ -9,7 +9,7 @@ import {
   Users,
   Wallet,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
@@ -26,7 +26,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { ThreeBackground } from '@/components/ui/three-bg'
 import { useAuth } from '@/context/auth-context'
+import { listPendingInvitesForUser } from '@/services/firestore/invites'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -133,39 +135,61 @@ function Footer() {
 }
 
 function NotificationsPopover() {
-  const unread = 3
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [invites, setInvites] = useState([])
+
+  useEffect(() => {
+    if (!user) return
+    const fetchInvites = async () => {
+      try {
+        const list = await listPendingInvitesForUser(user.uid)
+        setInvites(list)
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[FareSplit] Failed to fetch notification invites:', err)
+      }
+    }
+    fetchInvites()
+  }, [user])
+
+  const unread = invites.length
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="icon" className="relative rounded-xl">
-          <Bell className="h-4 w-4" />
-          {unread ? (
-            <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-semibold text-white">
+        <Button variant="outline" size="icon" className="relative rounded-xl border-gray-200 bg-white/90 shadow-sm backdrop-blur-md">
+          <Bell className="h-4 w-4 text-gray-700" />
+          {unread > 0 ? (
+            <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white shadow-xs">
               {unread}
             </span>
           ) : null}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
-        <div className="border-b border-gray-100 px-4 py-3">
-          <div className="text-sm font-semibold">Notifications</div>
-          <div className="text-xs text-gray-500">Recent updates</div>
+      <PopoverContent className="w-80 p-0 shadow-2xl bg-white text-gray-900 border border-gray-200/90 z-50 rounded-2xl overflow-hidden" align="end">
+        <div className="border-b border-gray-100 bg-gray-50/80 px-4 py-3">
+          <div className="text-sm font-bold text-gray-900">Notifications ({unread})</div>
+          <div className="text-xs text-gray-500">Trip invitations & updates</div>
         </div>
         <div className="max-h-80 overflow-auto p-2">
-          {[
-            { title: 'New trip invitation', detail: 'Pondicherry Trip' },
-            { title: 'Expense added', detail: 'Lunch ₹850' },
-            { title: 'Pending payment', detail: 'You owe Rahul ₹142' },
-          ].map((n) => (
-            <button
-              key={n.title}
-              className="w-full rounded-xl p-3 text-left transition hover:bg-gray-50"
-            >
-              <div className="text-sm font-medium">{n.title}</div>
-              <div className="text-xs text-gray-500">{n.detail}</div>
-            </button>
-          ))}
+          {invites.length === 0 ? (
+            <div className="p-4 text-center text-xs font-medium text-gray-500">
+              No new notifications right now.
+            </div>
+          ) : (
+            invites.map((n) => (
+              <button
+                key={n.id}
+                onClick={() => navigate('/requests')}
+                className="w-full rounded-xl p-3 text-left transition hover:bg-gray-50/90 border border-transparent hover:border-indigo-50"
+              >
+                <div className="text-xs font-bold text-indigo-600">Trip Invitation</div>
+                <div className="text-sm font-semibold text-gray-900 truncate">{n.tripName}</div>
+                <div className="text-xs text-gray-500">From @{n.fromUsername}</div>
+              </button>
+            ))
+          )}
         </div>
       </PopoverContent>
     </Popover>
@@ -241,8 +265,10 @@ export function AppLayout() {
   const initials = (name[0] || 'U').toUpperCase()
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <aside className="fixed inset-y-0 left-0 hidden w-72 bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-900 lg:block">
+    <div className="relative min-h-screen bg-slate-50/70 overflow-hidden">
+      <ThreeBackground />
+      
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-950 shadow-2xl lg:block">
         <SidebarContent
           initials={initials}
           name={name}
@@ -258,7 +284,7 @@ export function AppLayout() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
               onClick={() => setMobileOpen(false)}
             />
             <motion.aside
@@ -266,7 +292,7 @@ export function AppLayout() {
               animate={{ x: 0 }}
               exit={{ x: -320 }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-900 lg:hidden"
+              className="fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-950 shadow-2xl lg:hidden"
             >
               <SidebarContent
                 onNavigate={() => setMobileOpen(false)}
@@ -280,7 +306,7 @@ export function AppLayout() {
         ) : null}
       </AnimatePresence>
 
-      <div className="flex min-h-screen flex-col lg:ml-72">
+      <div className="relative z-10 flex min-h-screen flex-col lg:ml-72">
         <Header
           onOpenMobileSidebar={() => setMobileOpen(true)}
           name={name}
@@ -288,7 +314,7 @@ export function AppLayout() {
           onLogout={logout}
         />
         <main className="flex-1">
-          <div className="mx-auto max-w-7xl px-6 py-6">
+          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
             <Outlet />
           </div>
         </main>

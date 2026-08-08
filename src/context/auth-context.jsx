@@ -1,4 +1,11 @@
-import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
+import {
+  getRedirectResult,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithRedirect,
+  signOut,
+} from 'firebase/auth'
 import {
   collection,
   doc,
@@ -17,62 +24,152 @@ import { auth, db } from '@/services/firebase'
 
 const AuthContext = createContext(null)
 
+function formatSignInError(err) {
+  const code = err?.code ?? ''
+  if (code === 'auth/popup-closed-by-user') {
+    return 'Sign-in was cancelled. Please try again.'
+  }
+  if (code === 'auth/popup-blocked') {
+    return 'Sign-in popup was blocked by your browser. Please allow popups or try a different browser.'
+  }
+  if (code === 'auth/unauthorized-domain') {
+    return 'This domain is not authorized in Firebase. Add it under Authentication → Settings → Authorized domains.'
+  }
+  if (code === 'auth/operation-not-allowed') {
+    return 'Google sign-in is disabled in Firebase. Enable it under Authentication → Sign-in method.'
+  }
+  if (code === 'auth/account-exists-with-different-credential') {
+    return 'An account already exists with this email using a different sign-in method.'
+  }
+  const message = err?.message ?? 'Google sign-in failed. Please try again.'
+  return code ? `${message} (${code})` : message
+}
+
+async function syncUserProfile(fbUser) {
+  try {
+    const ref = doc(db, 'Users', fbUser.uid)
+    const snap = await getDoc(ref)
+
+    if (!snap.exists()) {
+      const baseProfile = {
+        uid: fbUser.uid,
+        email: fbUser.email ?? '',
+        fullName: fbUser.displayName ?? '',
+        photoURL: fbUser.photoURL ?? '',
+        username: '',
+        usernameLower: '',
+        phoneNumber: '',
+        upiId: '',
+        upiQrUrl: '',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }
+      await setDoc(ref, baseProfile)
+      return baseProfile
+    }
+
+    return snap.data()
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[FareSplit] Failed to sync user profile from Firestore:', err)
+    return {
+      uid: fbUser.uid,
+      email: fbUser.email ?? '',
+      fullName: fbUser.displayName ?? '',
+      photoURL: fbUser.photoURL ?? '',
+      username: fbUser.email ? fbUser.email.split('@')[0] : 'user',
+      usernameLower: fbUser.email ? fbUser.email.split('@')[0].toLowerCase() : 'user',
+      phoneNumber: '',
+      upiId: '',
+      upiQrUrl: '',
+    }
+  }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [authError, setAuthError] = useState('')
 
   const refreshProfile = async (uid) => {
     if (!uid) return
-    const ref = doc(db, 'Users', uid)
-    const snap = await getDoc(ref)
-    setProfile(snap.exists() ? snap.data() : null)
+    try {
+      const ref = doc(db, 'Users', uid)
+      const snap = await getDoc(ref)
+      setProfile(snap.exists() ? snap.data() : null)
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[FareSplit] Failed to refresh profile:', err)
+    }
   }
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (fbUser) => {
-      setUser(fbUser)
-      setLoading(true)
+    let unsub = () => {}
+
+    const init = async () => {
       try {
+        await getRedirectResult(auth)
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[FareSplit] Google redirect sign-in failed:', err)
+        setAuthError(formatSignInError(err))
+      }
+
+      unsub = onAuthStateChanged(auth, (fbUser) => {
+        setUser(fbUser)
+
         if (!fbUser) {
           setProfile(null)
+          setLoading(false)
           return
         }
 
-        const ref = doc(db, 'Users', fbUser.uid)
-        const snap = await getDoc(ref)
+        setAuthError('')
 
-        if (!snap.exists()) {
-          const baseProfile = {
-            uid: fbUser.uid,
-            email: fbUser.email ?? '',
-            fullName: fbUser.displayName ?? '',
-            photoURL: fbUser.photoURL ?? '',
-            username: '',
-            usernameLower: '',
-            phoneNumber: '',
-            upiId: '',
-            upiQrUrl: '',
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-          }
-          await setDoc(ref, baseProfile)
-          setProfile(baseProfile)
-        } else {
-          setProfile(snap.data())
-        }
-      } finally {
-        setLoading(false)
-      }
-    })
+        syncUserProfile(fbUser)
+          .then((p) => {
+            setProfile(p)
+            setLoading(false)
+          })
+          .catch((err) => {
+            // eslint-disable-next-line no-console
+            console.error('[FareSplit] Profile load error:', err)
+            setLoading(false)
+          })
+      })
+    }
+
+    init()
     return () => unsub()
   }, [])
 
   const needsOnboarding = !!user && !loading && (!profile?.username || !profile?.usernameLower)
 
   const signInWithGoogle = async () => {
+    setAuthError('')
     const provider = new GoogleAuthProvider()
-    await signInWithPopup(auth, provider)
+    provider.setCustomParameters({ prompt: 'select_account' })
+
+    try {
+      return await signInWithPopup(auth, provider)
+    } catch (err) {
+      if (err?.code === 'auth/popup-blocked') {
+        try {
+          await signInWithRedirect(auth, provider)
+          return
+        } catch (redirectErr) {
+          const message = formatSignInError(redirectErr)
+          setAuthError(message)
+          throw new Error(message)
+        }
+      }
+      // eslint-disable-next-line no-console
+      console.error('[FareSplit] Google sign-in failed:', err)
+      const message = formatSignInError(err)
+      setAuthError(message)
+      throw new Error(message)
+    }
   }
 
   const logout = async () => {
@@ -107,13 +204,14 @@ export function AuthProvider({ children }) {
       profile,
       loading,
       needsOnboarding,
+      authError,
       signInWithGoogle,
       logout,
       refreshProfile,
       isUsernameAvailable,
       updateMyProfile,
     }),
-    [user, profile, loading, needsOnboarding]
+    [user, profile, loading, needsOnboarding, authError]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
