@@ -259,35 +259,33 @@ export function AddExpensePage() {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="text-sm font-medium text-gray-700">Category</label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger className="mt-1.5 h-11 rounded-xl">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <label className="text-sm font-semibold text-gray-700">Category</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="mt-1.5 flex h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm font-semibold text-gray-900 shadow-xs focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                >
+                  {categories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700">Paid By</label>
-                <Select value={paidBy} onValueChange={setPaidBy}>
-                  <SelectTrigger className="mt-1.5 h-11 rounded-xl">
-                    <SelectValue placeholder="Select who paid" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {members.map((m) => (
-                      <SelectItem key={m.uid} value={m.uid}>
-                        {m.name} {m.uid === user?.uid ? '(You)' : ''}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <label className="text-sm font-semibold text-gray-700">Paid By</label>
+                <select
+                  value={paidBy || (members[0]?.uid ?? '')}
+                  onChange={(e) => setPaidBy(e.target.value)}
+                  className="mt-1.5 flex h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm font-semibold text-gray-900 shadow-xs focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                >
+                  {members.map((m) => (
+                    <option key={m.uid} value={m.uid}>
+                      {m.name} {m.uid === user?.uid ? '(You)' : ''}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
