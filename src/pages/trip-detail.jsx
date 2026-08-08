@@ -378,9 +378,9 @@ export function TripDetailPage() {
         </div>
 
         {/* OVERVIEW TAB */}
-        <TabsContent value="overview" className="mt-5 space-y-6">
+        <TabsContent value="overview" className="mt-5 w-full space-y-6">
           {/* Overview Stat Cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 w-full">
             <div className="w-full rounded-3xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-xl">
               <div className="text-xs font-bold uppercase tracking-wider text-gray-500">
                 Total Spending
@@ -409,27 +409,29 @@ export function TripDetailPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <Card className="rounded-3xl border border-white/60 bg-white/70 p-2 shadow-xl backdrop-blur-xl">
-              <CardHeader>
-                <CardTitle className="text-base font-bold">Category breakdown</CardTitle>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 w-full">
+            <Card className="w-full rounded-3xl border border-white/80 bg-white/90 p-4 shadow-xl backdrop-blur-xl">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-bold text-gray-900">Category breakdown</CardTitle>
               </CardHeader>
               <CardContent>
                 {categoryData.length === 0 ? (
-                  <div className="grid h-60 place-items-center text-sm font-medium text-gray-500">
+                  <div className="grid h-52 place-items-center text-xs font-medium text-gray-500">
                     No expenses logged yet for this trip.
                   </div>
                 ) : (
                   <>
-                    <div className="h-64 w-full flex items-center justify-center">
-                      <ResponsiveContainer width="100%" height={240}>
+                    <div className="h-52 w-full flex items-center justify-center overflow-hidden py-2">
+                      <ResponsiveContainer width="100%" height={200}>
                         <PieChart>
                           <Pie
                             data={categoryData}
                             dataKey="value"
                             nameKey="name"
-                            innerRadius={55}
-                            outerRadius={85}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={45}
+                            outerRadius={68}
                             paddingAngle={4}
                           >
                             {categoryData.map((_, idx) => (
@@ -440,14 +442,14 @@ export function TripDetailPage() {
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="mt-3 flex flex-wrap gap-2 justify-center">
                       {categoryData.map((c, idx) => (
                         <span
                           key={c.name}
-                          className="inline-flex items-center gap-2 rounded-full border border-gray-100 bg-white/90 px-3.5 py-1.5 text-xs font-semibold text-gray-700 shadow-xs"
+                          className="inline-flex items-center gap-2 rounded-full border border-gray-100 bg-white px-3 py-1 text-xs font-semibold text-gray-700 shadow-xs"
                         >
                           <span
-                            className="h-2.5 w-2.5 rounded-full"
+                            className="h-2.5 w-2.5 rounded-full shrink-0"
                             style={{ background: chartColors[idx % chartColors.length] }}
                           />
                           {c.name}: ₹{c.value.toLocaleString('en-IN')}
