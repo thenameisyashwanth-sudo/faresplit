@@ -4,10 +4,9 @@ import { Loader2, Map, Plus, Sparkles, Trash2, Users, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { CardBody, CardContainer, CardItem } from '@/components/ui/3d-card'
+import { FocusCards } from '@/components/ui/focus-cards'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/auth-context'
 import { listTripExpenses } from '@/services/firestore/expenses'
@@ -42,7 +41,7 @@ export function TripsPage() {
   const [filter, setFilter] = useState('All')
   const [tripsData, setTripsData] = useState([])
   const [loading, setLoading] = useState(true)
-  
+
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newTripName, setNewTripName] = useState('')
@@ -64,16 +63,16 @@ export function TripsPage() {
             const members = await getTripMembers(t.id)
             memberCount = members.length || 1
           } catch (e) {
-            // ignore member query failure
+            // ignore
           }
 
           try {
             const expenses = await listTripExpenses(t.id)
             totalSpent = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0)
           } catch (e) {
-            // ignore expense query failure
+            // ignore
           }
-          
+
           let formattedDate = 'Recently'
           if (t.createdAt?.toDate) {
             formattedDate = t.createdAt.toDate().toLocaleDateString('en-US', {
@@ -195,71 +194,68 @@ export function TripsPage() {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredTrips.map((t) => (
-            <CardContainer key={t.id} containerClassName="py-0 w-full">
-              <CardBody className="group/card relative w-full overflow-hidden rounded-3xl border border-white/80 bg-white/90 shadow-xl backdrop-blur-xl transition duration-300 hover:shadow-2xl">
-                <div className={['h-36 bg-gradient-to-br p-5 text-white', t.gradient].join(' ')}>
-                  <div className="flex h-full flex-col justify-between">
-                    <div className="flex items-center justify-between">
-                      <Badge className="bg-white/20 text-white font-bold backdrop-blur-md hover:bg-white/20">
-                        {t.status}
-                      </Badge>
-                      {user && t.creatorUid === user.uid ? (
-                        <button
-                          onClick={async (e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            if (window.confirm(`Are you sure you want to delete "${t.name}"?`)) {
-                              await deleteTrip(t.id)
-                              fetchTrips()
-                            }
-                          }}
-                          title="Delete Trip"
-                          className="rounded-full bg-white/10 p-1.5 text-white/70 backdrop-blur-md transition hover:bg-rose-500 hover:text-white"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      ) : null}
+        <FocusCards
+          items={filteredTrips}
+          renderCard={(t) => (
+            <div className="group relative w-full overflow-hidden rounded-3xl border border-white/80 bg-white/90 shadow-xl backdrop-blur-xl transition duration-300">
+              <div className={['h-36 bg-gradient-to-br p-5 text-white', t.gradient].join(' ')}>
+                <div className="flex h-full flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <Badge className="bg-white/20 text-white font-bold backdrop-blur-md hover:bg-white/20">
+                      {t.status}
+                    </Badge>
+                    {user && t.creatorUid === user.uid ? (
+                      <button
+                        onClick={async (e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          if (window.confirm(`Are you sure you want to delete "${t.name}"?`)) {
+                            await deleteTrip(t.id)
+                            fetchTrips()
+                          }
+                        }}
+                        title="Delete Trip"
+                        className="rounded-full bg-white/10 p-1.5 text-white/70 backdrop-blur-md transition hover:bg-rose-500 hover:text-white"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    ) : null}
+                  </div>
+                  <div>
+                    <div className="text-xl font-black text-white truncate">
+                      {t.name}
                     </div>
-                    <div>
-                      <CardItem translateZ="30" className="text-xl font-black text-white truncate">
-                        {t.name}
-                      </CardItem>
-                      <CardItem translateZ="15" className="text-xs text-white/80 font-medium truncate mt-0.5">
-                        {t.description || 'Shared trip'}
-                      </CardItem>
+                    <div className="text-xs text-white/80 font-medium truncate mt-0.5">
+                      {t.description || 'Shared trip'}
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div className="p-5 bg-white/90">
-                  <div className="flex items-center justify-between text-xs font-semibold text-gray-500">
-                    <div className="flex items-center gap-1.5">
-                      <Users className="h-3.5 w-3.5 text-indigo-600" />
-                      {t.members} member{t.members !== 1 ? 's' : ''}
-                    </div>
-                    <div>{t.date}</div>
+              <div className="p-5 bg-white/90">
+                <div className="flex items-center justify-between text-xs font-semibold text-gray-500">
+                  <div className="flex items-center gap-1.5">
+                    <Users className="h-3.5 w-3.5 text-indigo-600" />
+                    {t.members} member{t.members !== 1 ? 's' : ''}
                   </div>
-
-                  <div className="mt-4 flex items-end justify-between">
-                    <span className="text-xs font-semibold text-gray-500">Total spent</span>
-                    <span className="text-lg font-black text-gray-900">₹{t.total.toLocaleString('en-IN')}</span>
-                  </div>
-
-                  <CardItem translateZ="40" className="mt-4 w-full">
-                    <Link
-                      to={`/trips/${t.id}`}
-                      className="block w-full text-center rounded-2xl bg-indigo-600 py-2.5 text-xs font-bold text-white hover:bg-indigo-700 transition shadow-md"
-                    >
-                      Open Trip Workspace →
-                    </Link>
-                  </CardItem>
+                  <div>{t.date}</div>
                 </div>
-              </CardBody>
-            </CardContainer>
-          ))}
-        </div>
+
+                <div className="mt-4 flex items-end justify-between">
+                  <span className="text-xs font-semibold text-gray-500">Total spent</span>
+                  <span className="text-lg font-black text-gray-900">₹{t.total.toLocaleString('en-IN')}</span>
+                </div>
+
+                <Link
+                  to={`/trips/${t.id}`}
+                  className="mt-4 block w-full text-center rounded-2xl bg-indigo-600 py-2.5 text-xs font-bold text-white hover:bg-indigo-700 transition shadow-md"
+                >
+                  Open Trip Workspace →
+                </Link>
+              </div>
+            </div>
+          )}
+        />
       )}
 
       {/* Create Trip Modal */}
