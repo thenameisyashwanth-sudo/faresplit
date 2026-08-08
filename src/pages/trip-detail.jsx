@@ -299,10 +299,11 @@ export function TripDetailPage() {
         </div>
 
         {/* Responsive Action Buttons */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
-          <Button asChild className="h-11 w-full sm:w-auto rounded-2xl bg-indigo-600 px-6 font-bold hover:bg-indigo-700 shadow-md">
-            <Link to={`/trips/${trip.id}/add-expense`}>
-              <Plus className="mr-2 h-4 w-4" /> Add Expense
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button asChild className="h-11 rounded-2xl bg-indigo-600 px-5 font-bold hover:bg-indigo-700 shadow-md">
+            <Link to={`/trips/${trip.id}/add-expense`} className="inline-flex items-center gap-2">
+              <Plus className="h-4 w-4 shrink-0 text-white" />
+              <span>Add Expense</span>
             </Link>
           </Button>
 
@@ -420,8 +421,8 @@ export function TripDetailPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
+                    <div className="h-64 w-full flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height={240}>
                         <PieChart>
                           <Pie
                             data={categoryData}
@@ -548,21 +549,21 @@ export function TripDetailPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {memberBalances.map((b) => (
               <div key={b.uid} className="w-full rounded-3xl border border-white/80 bg-white/90 p-5 shadow-lg backdrop-blur-xl">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="text-base font-bold text-gray-900">{b.name}</div>
-                    <div className="text-xs font-medium text-gray-500">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-base font-bold text-gray-900 truncate">{b.name}</div>
+                    <div className="text-xs font-medium text-gray-500 truncate">
                       {b.email || `@${b.name.toLowerCase()}`}
                     </div>
                   </div>
                   <div
                     className={[
-                      'rounded-xl px-3 py-1 text-sm font-bold',
+                      'rounded-xl px-3 py-1.5 text-xs font-black shrink-0 whitespace-nowrap',
                       b.amount > 0
-                        ? 'bg-emerald-50 text-emerald-600'
+                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
                         : b.amount < 0
-                        ? 'bg-rose-50 text-rose-600'
-                        : 'bg-gray-50 text-gray-600',
+                        ? 'bg-rose-50 text-rose-600 border border-rose-200'
+                        : 'bg-gray-50 text-gray-600 border border-gray-200',
                     ].join(' ')}
                   >
                     {b.amount > 0
