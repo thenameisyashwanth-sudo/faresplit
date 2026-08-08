@@ -83,10 +83,22 @@ export function TripDetailPage() {
       const tripData = await getTrip(tripId)
       setTrip(tripData)
 
-      const memberList = await getTripMembers(tripId)
+      let memberList = []
+      try {
+        memberList = await getTripMembers(tripId)
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('[FareSplit] Error loading trip members:', e)
+      }
       setMembers(memberList)
 
-      const expenseList = await listTripExpenses(tripId)
+      let expenseList = []
+      try {
+        expenseList = await listTripExpenses(tripId)
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('[FareSplit] Error loading trip expenses:', e)
+      }
       setExpenses(expenseList)
     } catch (err) {
       // eslint-disable-next-line no-console
