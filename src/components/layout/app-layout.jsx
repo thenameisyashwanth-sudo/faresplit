@@ -127,6 +127,12 @@ function SidebarContent({ onNavigate, initials, name, email, onLogout }) {
 }
 
 function Footer() {
+  const handleWhatsAppContact = (e) => {
+    e.preventDefault()
+    const url = 'https://api.whatsapp.com/send?phone=916369535372&text=Hi%20Yashwanth,%20I%20have%20an%20issue%20with%20FareSplit'
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <footer className="border-t border-gray-100 bg-white/80 py-5 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-6 sm:flex-row sm:items-center sm:justify-between">
@@ -134,15 +140,14 @@ function Footer() {
           © 2026 FareSplit. Built & owned by Yashwanth S.
         </div>
         <div>
-          <a
-            href="https://wa.me/916369535373?text=Hi%20Yashwanth,%20I%20need%20help%20with%20FareSplit"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-50 px-3.5 py-1.5 text-xs font-bold text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition shadow-xs"
+          <button
+            type="button"
+            onClick={handleWhatsAppContact}
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition shadow-xs cursor-pointer"
           >
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            WhatsApp Support (+91 6369535373)
-          </a>
+            Contact Owner on WhatsApp (+91 6369535372)
+          </button>
         </div>
       </div>
     </footer>
