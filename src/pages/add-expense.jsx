@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useAuth } from '@/context/auth-context'
+import { ReceiptScannerModal } from '@/components/ai/receipt-scanner-modal'
 import { addExpense } from '@/services/firestore/expenses'
 import { getTripMembers } from '@/services/firestore/trips'
 
@@ -62,6 +63,20 @@ export function AddExpensePage() {
 
   // Speech recognition state
   const [listening, setListening] = useState(false)
+
+  // AI Receipt Scanner Modal state
+  const [isScannerOpen, setIsScannerOpen] = useState(false)
+
+  const handleScanComplete = (extracted) => {
+    if (extracted.amount) setAmount(String(extracted.amount))
+    if (extracted.title) setDescription(extracted.title)
+    if (extracted.category) {
+      const match = categories.find(
+        (c) => c.toLowerCase() === extracted.category.toLowerCase()
+      )
+      setCategory(match || 'Food')
+    }
+  }
 
   useEffect(() => {
     if (!tripId) return
@@ -115,13 +130,40 @@ export function AddExpensePage() {
         .map((r) => r[0]?.transcript ?? '')
         .join(' ')
 
-      // Parse simple amounts like "spent 400 for lunch"
-      const match = text.match(/(\d+)/)
-      if (match) {
-        setAmount(match[1])
+      if (!text) return
+      setDescription(text)
+
+      // 1. Smart Amount Extraction (e.g. "spent 2400 rupees", "400 for lunch")
+      const numMatch = text.match(/(\d+)/)
+      if (numMatch) {
+        setAmount(numMatch[1])
       }
-      if (text) {
-        setDescription(text)
+
+      // 2. Smart Category Matching
+      const lower = text.toLowerCase()
+      if (lower.includes('lunch') || lower.includes('dinner') || lower.includes('food') || lower.includes('breakfast') || lower.includes('cafe') || lower.includes('coffee')) {
+        setCategory('Food')
+      } else if (lower.includes('taxi') || lower.includes('cab') || lower.includes('uber') || lower.includes('flight') || lower.includes('travel')) {
+        setCategory('Transport')
+      } else if (lower.includes('hotel') || lower.includes('stay') || lower.includes('resort') || lower.includes('airbnb')) {
+        setCategory('Hotel')
+      } else if (lower.includes('fuel') || lower.includes('petrol') || lower.includes('gas')) {
+        setCategory('Fuel')
+      } else if (lower.includes('drink') || lower.includes('beer') || lower.includes('wine')) {
+        setCategory('Drinks')
+      } else if (lower.includes('shopping') || lower.includes('mall') || lower.includes('buy')) {
+        setCategory('Shopping')
+      }
+
+      // 3. Smart Payer Detection (e.g. "Rahul paid 2000")
+      if (members.length > 0) {
+        const foundMember = members.find((m) => {
+          const name = (m.name || m.email || '').toLowerCase()
+          return name && lower.includes(name.split(' ')[0])
+        })
+        if (foundMember) {
+          setPaidBy(foundMember.uid)
+        }
       }
     }
 
@@ -210,29 +252,43 @@ export function AddExpensePage() {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center justify-between text-base">
             <span>Expense Details</span>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setListening(!listening)}
-              className={[
-                'h-9 rounded-xl text-xs font-medium transition',
-                listening ? 'border-rose-300 bg-rose-50 text-rose-600' : 'text-gray-600',
-              ].join(' ')}
-            >
-              {listening ? (
-                <>
-                  <MicOff className="mr-1.5 h-3.5 w-3.5 text-rose-600 animate-pulse" /> Listening...
-                </>
-              ) : (
-                <>
-                  <Mic className="mr-1.5 h-3.5 w-3.5" /> Voice Input
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                onClick={() => setIsScannerOpen(true)}
+                className="h-9 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-3 text-xs font-bold text-white shadow-md hover:opacity-90 transition"
+              >
+                <Sparkles className="mr-1.5 h-3.5 w-3.5" /> Scan Receipt with AI
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setListening(!listening)}
+                className={[
+                  'h-9 rounded-xl text-xs font-medium transition',
+                  listening ? 'border-rose-300 bg-rose-50 text-rose-600' : 'text-gray-600',
+                ].join(' ')}
+              >
+                {listening ? (
+                  <>
+                    <MicOff className="mr-1.5 h-3.5 w-3.5 text-rose-600 animate-pulse" /> Listening...
+                  </>
+                ) : (
+                  <>
+                    <Mic className="mr-1.5 h-3.5 w-3.5" /> Voice Input
+                  </>
+                )}
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <ReceiptScannerModal
+            isOpen={isScannerOpen}
+            onClose={() => setIsScannerOpen(false)}
+            onScanComplete={handleScanComplete}
+          />
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="text-sm font-medium text-gray-700">Amount (₹)</label>

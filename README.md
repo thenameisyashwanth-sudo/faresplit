@@ -1,62 +1,35 @@
-# FareSplit
+# FareSplit ✨
 
-FareSplit is a trip and outing expense-splitting application focused on simple group settlements.
+FareSplit is an AI-powered, modern group trip expense-splitting & financial settlement web application.
 
-## What it does
+## Key Features
 
-- Sign in with Google.
-- Create and join trips.
-- Add and track shared expenses.
-- Compute balances and suggest settlements.
-- Generate UPI payment links for quick settlement actions.
+- **🕸️ Interactive Debt Graph Visualizer**: Graph Theory $O(N)$ Debt Minimization Topology comparing raw debt webs vs. streamlined minimum cash flows.
+- **🤖 AI Smart Receipt Vision Scanner**: Upload or capture receipt photos to automatically extract merchant name, total amount, category, and date.
+- **🎙️ AI Voice-to-JSON Natural Language Expense Logger**: Web Speech API integration that parses spoken phrases (*"Rahul paid 2400 for dinner"*) directly into structured form state.
+- **📊 Group Budget Predictor & Daily Burn-Rate Engine**: Real-time target budget tracking, daily burn rate (`₹/day`), projected final trip expense forecast, and smart advice nudges.
+- **🎡 Gamified "Who Pays Next?" Wheel Spinner**: Fun interactive 3D spinning wheel with physics-based deceleration and confetti fireworks.
+- **📲 One-Tap Deep-Link Settlement & Dynamic QR Generator**: Direct `upi://pay` deep-linking into Google Pay/PhonePe/Paytm with dynamic SVG QR code generation.
+- **📄 Instant PDF & CSV Report Export**: One-click formatted `.csv` downloads and printable PDF summary reports.
+- **🔐 Firebase Auth & Realtime Firestore**: Google Authentication, trip invite codes, and real-time multi-user synchronization.
 
-## Tech stack
+## Tech Stack
 
-- Frontend: React + Vite + TailwindCSS
-- Data/Auth: Firebase (Auth, Firestore, Storage)
-- Backend: Node.js + Express (AI helper endpoints)
+- **Frontend**: React 19 + Vite + TailwindCSS + Framer Motion + Three.js + Recharts
+- **Database & Auth**: Firebase (Authentication, Firestore NoSQL)
+- **Algorithms**: Greedy Cash-Flow Debt Minimization Algorithm
 
-## Project structure
-
-- `src/`: frontend application (pages, components, context, Firebase services)
-- `backend/`: Express API for AI/OCR/voice parsing helpers
-
-## Getting started
-
-### Frontend
+## Getting Started
 
 1. Install dependencies:
-   - `npm install`
+   ```bash
+   npm install
+   ```
 2. Start development server:
-   - `npm run dev`
+   ```bash
+   npm run dev
+   ```
 3. Build for production:
-   - `npm run build`
-4. Preview production build:
-   - `npm run preview`
-
-### Backend
-
-1. Move into backend:
-   - `cd backend`
-2. Install dependencies:
-   - `npm install`
-3. Start in development mode:
-   - `npm run dev`
-4. Start in production mode:
-   - `npm start`
-
-## Environment variables
-
-Copy `.env.example` to `.env` in the project root and fill Firebase values:
-
-- `VITE_FIREBASE_API_KEY`
-- `VITE_FIREBASE_AUTH_DOMAIN`
-- `VITE_FIREBASE_PROJECT_ID`
-- `VITE_FIREBASE_STORAGE_BUCKET`
-- `VITE_FIREBASE_MESSAGING_SENDER_ID`
-- `VITE_FIREBASE_APP_ID`
-
-Backend uses:
-
-- `PORT` (default: `8080`)
-- `CORS_ORIGIN` (comma-separated allowed origins)
+   ```bash
+   npm run build
+   ```

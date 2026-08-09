@@ -58,6 +58,11 @@ const chartColors = [
 ]
 
 import { UpiPaymentModal } from '@/components/ui/upi-modal'
+import { BudgetTrackerCard } from '@/components/budget/budget-tracker-card'
+import { WhoPaysWheelModal } from '@/components/games/who-pays-wheel'
+import { DebtGraphVisualizer } from '@/components/settlement/debt-graph-visualizer'
+import { exportTripToCSV, exportTripToPDF } from '@/utils/export-report'
+import { Dices, Download } from 'lucide-react'
 
 export function TripDetailPage() {
   const { tripId } = useParams()
@@ -80,6 +85,9 @@ export function TripDetailPage() {
   // Copied link state
   const [copiedLink, setCopiedLink] = useState(false)
   const [isStatementModalOpen, setIsStatementModalOpen] = useState(false)
+
+  // Who Pays Wheel state
+  const [isWheelOpen, setIsWheelOpen] = useState(false)
 
   // Delete trip state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -333,6 +341,32 @@ export function TripDetailPage() {
             )}
           </Button>
           <Button
+            onClick={() => setIsWheelOpen(true)}
+            variant="outline"
+            className="h-8 rounded-xl border-amber-300 bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-2.5 text-xs font-black text-amber-700 hover:from-amber-500/20 hover:to-orange-500/20 shadow-xs shrink-0"
+          >
+            <Dices className="mr-1 h-3.5 w-3.5 text-amber-600 shrink-0 animate-bounce" /> Who Pays? 🎡
+          </Button>
+
+          <Button
+            onClick={() => exportTripToCSV(trip, expenses, members)}
+            variant="outline"
+            className="h-8 rounded-xl border-emerald-200 bg-emerald-50/70 px-2.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 shadow-xs shrink-0"
+            title="Export Excel / CSV Report"
+          >
+            <Download className="mr-1 h-3 w-3 text-emerald-600 shrink-0" /> CSV Export
+          </Button>
+
+          <Button
+            onClick={() => exportTripToPDF(trip, expenses, settlements, totalSpent)}
+            variant="outline"
+            className="h-8 rounded-xl border-purple-200 bg-purple-50/70 px-2.5 text-xs font-bold text-purple-700 hover:bg-purple-100 shadow-xs shrink-0"
+            title="Print or Save PDF Summary Report"
+          >
+            <Printer className="mr-1 h-3 w-3 text-purple-600 shrink-0" /> PDF Report
+          </Button>
+
+          <Button
             onClick={() => setIsStatementModalOpen(true)}
             variant="outline"
             className="h-8 rounded-xl border-indigo-200 bg-indigo-50/70 px-2.5 text-xs font-bold text-indigo-600 shadow-xs shrink-0"
@@ -376,6 +410,9 @@ export function TripDetailPage() {
 
         {/* OVERVIEW TAB */}
         <TabsContent value="overview" className="mt-4 w-full space-y-4 sm:space-y-6">
+          {/* Budget Tracker & Daily Burn Rate Predictor */}
+          <BudgetTrackerCard totalSpent={totalSpent} memberCount={members.length} />
+
           {/* Overview Stat Cards */}
           <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full">
             <div className="w-full rounded-2xl sm:rounded-3xl border border-white/80 bg-white/90 p-3 sm:p-5 shadow-md backdrop-blur-xl">
@@ -586,7 +623,9 @@ export function TripDetailPage() {
         </TabsContent>
 
         {/* SETTLEMENT TAB */}
-        <TabsContent value="settlement" className="mt-6">
+        <TabsContent value="settlement" className="mt-6 space-y-6">
+          <DebtGraphVisualizer members={members} settlements={settlements} expenses={expenses} />
+
           <Card className="rounded-3xl border border-white/60 bg-white/70 p-2 shadow-xl backdrop-blur-xl">
             <CardHeader>
               <CardTitle className="text-base font-bold">Smart Settlements</CardTitle>
@@ -934,6 +973,12 @@ export function TripDetailPage() {
           </div>
         </div>
       ) : null}
+
+      <WhoPaysWheelModal
+        isOpen={isWheelOpen}
+        onClose={() => setIsWheelOpen(false)}
+        members={members}
+      />
 
       <UpiPaymentModal
         isOpen={payeeModal.open}
