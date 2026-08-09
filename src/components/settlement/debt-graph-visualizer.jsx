@@ -2,8 +2,6 @@ import { motion } from 'framer-motion'
 import { ArrowRight, CheckCircle2, GitCommit, Network, Zap } from 'lucide-react'
 import { useState } from 'react'
 
-import { Button } from '@/components/ui/button'
-
 const avatarColors = [
   'bg-indigo-500',
   'bg-emerald-500',
@@ -61,10 +59,10 @@ export function DebtGraphVisualizer({ members = [], settlements = [], expenses =
           </div>
           <div>
             <h3 className="text-base font-black text-white flex items-center gap-2">
-              Interactive Debt Graph Visualizer <Zap className="h-4 w-4 text-amber-400 fill-amber-400" />
+              Smart Settlement Flow <Zap className="h-4 w-4 text-amber-400 fill-amber-400" />
             </h3>
             <p className="text-xs text-indigo-300 font-medium">
-              Graph Theory $O(N)$ Debt Minimization Topology
+              Visualizing optimized direct group payments for your trip
             </p>
           </div>
         </div>
@@ -79,7 +77,7 @@ export function DebtGraphVisualizer({ members = [], settlements = [], expenses =
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            Chaotic Web ({rawTransactions.length} txns)
+            All Individual Debts ({rawTransactions.length})
           </button>
           <button
             onClick={() => setViewMode('optimized')}
@@ -89,18 +87,18 @@ export function DebtGraphVisualizer({ members = [], settlements = [], expenses =
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            ⚡ Optimized ({settlements.length} txns)
+            ⚡ Simplified Payments ({settlements.length})
           </button>
         </div>
       </div>
 
       {/* Graph Visual Display Canvas */}
-      <div className="relative z-10 mt-6 min-h-[260px] flex flex-col justify-center">
+      <div className="relative z-10 mt-6 min-h-[200px] flex flex-col justify-center">
         {activeTransactions.length === 0 ? (
           <div className="text-center py-10 space-y-2">
             <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-400 animate-bounce" />
             <p className="text-sm font-bold text-gray-300">All debts are fully settled!</p>
-            <p className="text-xs text-gray-500">No transaction flow arrows required.</p>
+            <p className="text-xs text-gray-500">No payment transfers needed.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -120,14 +118,14 @@ export function DebtGraphVisualizer({ members = [], settlements = [], expenses =
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    {/* Debtor Node */}
+                    {/* Payer Node */}
                     <div className="flex items-center gap-2">
-                      <div className="grid h-8 w-8 place-items-center rounded-xl bg-rose-500/20 text-rose-300 font-black text-xs border border-rose-500/30">
-                        {tx.from?.charAt(0) || 'D'}
+                      <div className="grid h-8 w-8 place-items-center rounded-xl bg-rose-500/20 text-rose-300 font-black text-xs border border-rose-500/30 uppercase">
+                        {tx.from?.charAt(0) || 'P'}
                       </div>
                       <div>
                         <p className="text-xs font-bold text-white">{tx.from}</p>
-                        <p className="text-[10px] text-rose-400 font-semibold">Debtor (Payer)</p>
+                        <p className="text-[10px] text-rose-400 font-semibold">Payer</p>
                       </div>
                     </div>
 
@@ -142,14 +140,14 @@ export function DebtGraphVisualizer({ members = [], settlements = [], expenses =
                       </div>
                     </div>
 
-                    {/* Creditor Node */}
+                    {/* Receiver Node */}
                     <div className="flex items-center gap-2 text-right">
                       <div>
                         <p className="text-xs font-bold text-white">{tx.to}</p>
-                        <p className="text-[10px] text-emerald-400 font-semibold">Creditor (Receiver)</p>
+                        <p className="text-[10px] text-emerald-400 font-semibold">Receiver</p>
                       </div>
-                      <div className="grid h-8 w-8 place-items-center rounded-xl bg-emerald-500/20 text-emerald-300 font-black text-xs border border-emerald-500/30">
-                        {tx.to?.charAt(0) || 'C'}
+                      <div className="grid h-8 w-8 place-items-center rounded-xl bg-emerald-500/20 text-emerald-300 font-black text-xs border border-emerald-500/30 uppercase">
+                        {tx.to?.charAt(0) || 'R'}
                       </div>
                     </div>
                   </div>
@@ -160,19 +158,19 @@ export function DebtGraphVisualizer({ members = [], settlements = [], expenses =
         )}
       </div>
 
-      {/* Graph Complexity Savings Bar */}
+      {/* Simplification Summary Bar */}
       <div className="relative z-10 mt-6 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between text-xs font-semibold text-gray-400 gap-2">
         <div className="flex items-center gap-2">
           <GitCommit className="h-4 w-4 text-indigo-400" />
           <span>
-            Original Complexity:{' '}
+            Individual Debts:{' '}
             <strong className="text-rose-400">{rawTransactions.length} payments</strong>
           </span>
         </div>
         <div className="flex items-center gap-1.5 text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
           <Zap className="h-3.5 w-3.5 fill-emerald-400" />
           <span>
-            Greedy Optimization Reduced Debt Transfers by{' '}
+            Smart Settlement reduced payment transfers by{' '}
             {rawTransactions.length > 0
               ? Math.round(
                   ((rawTransactions.length - settlements.length) / rawTransactions.length) * 100
