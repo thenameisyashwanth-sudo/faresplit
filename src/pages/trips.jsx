@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/auth-context'
 import { listTripExpenses } from '@/services/firestore/expenses'
+import { ThreeDCardDemo } from '@/components/ui/3d-card-demo'
 import { createTrip, deleteTrip, getTripMembers, listTripsForUser } from '@/services/firestore/trips'
 
 const gradients = [
@@ -178,20 +179,13 @@ export function TripsPage() {
           <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
         </div>
       ) : filteredTrips.length === 0 ? (
-        <div className="grid place-items-center rounded-3xl border border-dashed border-gray-200 bg-white/80 p-8 text-center sm:p-12 shadow-sm backdrop-blur-xl">
-          <Map className="h-12 w-12 text-indigo-300" />
-          <div className="mt-3 text-lg font-bold text-gray-900">No trips found</div>
-          <div className="mt-1 text-sm font-medium text-gray-500">
-            {filter === 'All'
-              ? 'Create a trip to start splitting expenses with your friends.'
-              : `No ${filter.toLowerCase()} trips found.`}
-          </div>
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            className="mt-5 h-11 rounded-2xl bg-indigo-600 px-6 font-bold hover:bg-indigo-700 shadow-md"
-          >
-            Create Trip
-          </Button>
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-indigo-200 bg-white/80 p-6 text-center shadow-sm backdrop-blur-xl">
+          <ThreeDCardDemo
+            title="Create Your Next Group Trip ✨"
+            description="Hover over this 3D card to experience perspective motion. Start logging shared expenses, split bills equally or unequally, and settle up via UPI instantly."
+            buttonText="Create Trip Now"
+            onAction={() => setIsModalOpen(true)}
+          />
         </div>
       ) : (
         <FocusCards
