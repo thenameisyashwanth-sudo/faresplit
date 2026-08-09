@@ -349,24 +349,6 @@ export function TripDetailPage() {
           </Button>
 
           <Button
-            onClick={() => exportTripToCSV(trip, expenses, members)}
-            variant="outline"
-            className="h-8 rounded-xl border-emerald-200 bg-emerald-50/70 px-2.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 shadow-xs shrink-0"
-            title="Export Excel / CSV Report"
-          >
-            <Download className="mr-1 h-3 w-3 text-emerald-600 shrink-0" /> CSV Export
-          </Button>
-
-          <Button
-            onClick={() => exportTripToPDF(trip, expenses, settlements, totalSpent)}
-            variant="outline"
-            className="h-8 rounded-xl border-purple-200 bg-purple-50/70 px-2.5 text-xs font-bold text-purple-700 hover:bg-purple-100 shadow-xs shrink-0"
-            title="Print or Save PDF Summary Report"
-          >
-            <Printer className="mr-1 h-3 w-3 text-purple-600 shrink-0" /> PDF Report
-          </Button>
-
-          <Button
             onClick={() => setIsStatementModalOpen(true)}
             variant="outline"
             className="h-8 rounded-xl border-indigo-200 bg-indigo-50/70 px-2.5 text-xs font-bold text-indigo-600 shadow-xs shrink-0"
@@ -916,14 +898,23 @@ export function TripDetailPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-              <Button
-                variant="outline"
-                onClick={() => window.print()}
-                className="h-10 rounded-xl border-gray-200 text-xs font-bold text-gray-700"
-              >
-                <Printer className="mr-1.5 h-4 w-4" /> Print / Save PDF
-              </Button>
+            <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => exportTripToCSV(trip, expenses, members)}
+                  className="h-10 rounded-xl border-emerald-200 bg-emerald-50/60 text-xs font-bold text-emerald-700 hover:bg-emerald-100"
+                >
+                  <Download className="mr-1.5 h-4 w-4 text-emerald-600" /> Export CSV
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => window.print()}
+                  className="h-10 rounded-xl border-gray-200 text-xs font-bold text-gray-700"
+                >
+                  <Printer className="mr-1.5 h-4 w-4" /> Print / Save PDF
+                </Button>
+              </div>
               <Button
                 onClick={() => setIsStatementModalOpen(false)}
                 className="h-10 rounded-xl bg-indigo-600 px-6 text-xs font-bold text-white hover:bg-indigo-700"
